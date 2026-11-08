@@ -1,0 +1,4323 @@
+<!DOCTYPE html>
+<html lang="hi">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RI तपाल प्रबंधक | RI Tapal Manager</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;500;600;700;800&family=Noto+Sans+Tamil:wght@400;500;600;700&family=DM+Mono:wght@400;500&family=Sora:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
+  <style>
+    :root {
+      --primary: #4e7d2b;
+      --primary-dark: #365a1c;
+      --primary-light: #eaf5e0;
+      --primary-glow: rgba(78, 125, 43, .18);
+      --secondary: #7bb84a;
+      --bg: #f4f8ee;
+      --surface: #fff;
+      --surface2: #f0f6e8;
+      --border: #d4e6c3;
+      --border-md: #b8d49a;
+      --success: #3a8a4a;
+      --success-bg: #e8f8ed;
+      --warning: #c47e12;
+      --warning-bg: #fef5e4;
+      --danger: #c0392b;
+      --danger-bg: #fdecea;
+      --sent-color: #2e7d5e;
+      --sent-bg: #e4f5ef;
+      --completed-color: #166534;
+      --completed-bg: #dcfce7;
+      --text: #263320;
+      --text-2: #4a5e42;
+      --text-3: #85997c;
+      --radius: 14px;
+      --radius-sm: 9px;
+      --shadow-sm: 0 2px 8px rgba(40, 80, 20, .07), 0 1px 3px rgba(40, 80, 20, .04);
+      --shadow-md: 0 6px 20px rgba(40, 80, 20, .10);
+      --shadow-lg: 0 16px 48px rgba(40, 80, 20, .15);
+      --sidebar-w: 220px;
+    }
+
+    *,
+    *::before,
+    *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box
+    }
+
+    html {
+      scroll-behavior: smooth
+    }
+
+    body {
+      font-family: 'Sora', 'Noto Sans Devanagari', 'Noto Sans Tamil', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+      display: flex;
+      font-size: 15px
+    }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: var(--sidebar-w);
+      min-height: 100vh;
+      background: linear-gradient(180deg, #2e5119 0%, #3d6b22 40%, #4e7d2b 100%);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      z-index: 200;
+      box-shadow: 3px 0 20px rgba(30, 60, 10, .18);
+      overflow: hidden
+    }
+
+    .sidebar::before {
+      content: '';
+      position: absolute;
+      bottom: -20px;
+      right: -30px;
+      width: 160px;
+      height: 160px;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 160 160'%3E%3Cellipse cx='80' cy='140' rx='70' ry='50' fill='rgba(255,255,255,0.04)'/%3E%3C/svg%3E") no-repeat center;
+      pointer-events: none
+    }
+
+    .sidebar-logo {
+      padding: 22px 20px 18px;
+      border-bottom: 1px solid rgba(255, 255, 255, .1);
+      display: flex;
+      align-items: center;
+      gap: 11px
+    }
+
+    .sidebar-logo-emblem {
+      width: 42px;
+      height: 42px;
+      background: rgba(255, 255, 255, .15);
+      border: 1.5px solid rgba(255, 255, 255, .3);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      overflow: hidden
+    }
+
+    .sidebar-logo-text .hi {
+      font-size: 13px;
+      font-weight: 700;
+      color: #fff;
+      line-height: 1.3;
+      font-family: 'Noto Sans Devanagari', sans-serif
+    }
+
+    .sidebar-logo-text .en {
+      font-size: 11px;
+      color: rgba(255, 255, 255, .55)
+    }
+
+    .sidebar-nav {
+      flex: 1;
+      padding: 14px 12px
+    }
+
+    .nav-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: rgba(255, 255, 255, .35);
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      padding: 0 8px;
+      margin: 16px 0 6px
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, .7);
+      cursor: pointer;
+      transition: all .18s ease;
+      margin-bottom: 2px;
+      text-decoration: none
+    }
+
+    .nav-item .nav-icon {
+      font-size: 16px;
+      flex-shrink: 0;
+      width: 22px;
+      text-align: center
+    }
+
+    .nav-item:hover {
+      background: rgba(255, 255, 255, .1);
+      color: #fff
+    }
+
+    .nav-item.active {
+      background: rgba(255, 255, 255, .18);
+      color: #fff;
+      font-weight: 600;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, .15)
+    }
+
+    .sidebar-bottom {
+      padding: 14px 12px;
+      border-top: 1px solid rgba(255, 255, 255, .1)
+    }
+
+    .sidebar-brand-tag {
+      font-size: 10px;
+      color: rgba(255, 255, 255, .3);
+      text-align: center;
+      letter-spacing: .05em;
+      padding: 8px
+    }
+
+    .leaf-deco {
+      position: absolute;
+      pointer-events: none;
+      opacity: .07
+    }
+
+    .leaf-deco.top {
+      top: 70px;
+      right: -10px
+    }
+
+    .leaf-deco.mid {
+      top: 45%;
+      left: -15px
+    }
+
+    /* LANG SWITCHER */
+    .lang-switcher {
+      display: flex;
+      background: rgba(255, 255, 255, .08);
+      border: 1px solid rgba(255, 255, 255, .15);
+      border-radius: 8px;
+      overflow: hidden;
+      margin: 0 12px 12px
+    }
+
+    .lang-btn {
+      flex: 1;
+      padding: 7px 2px;
+      font-size: 10.5px;
+      font-weight: 600;
+      color: rgba(255, 255, 255, .55);
+      background: none;
+      border: none;
+      cursor: pointer;
+      transition: all .18s;
+      font-family: 'Sora', sans-serif
+    }
+
+    .lang-btn.active {
+      background: rgba(255, 255, 255, .2);
+      color: #fff;
+      border-radius: 6px
+    }
+
+    .lang-btn:hover:not(.active) {
+      color: rgba(255, 255, 255, .85)
+    }
+
+    /* APP WRAPPER */
+    .app-wrapper {
+      margin-left: var(--sidebar-w);
+      flex: 1;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column
+    }
+
+    /* HEADER */
+    header {
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      padding: 0 28px;
+      height: 66px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: var(--shadow-sm)
+    }
+
+    .header-title .hi {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text);
+      font-family: 'Noto Sans Devanagari', sans-serif;
+      line-height: 1.2
+    }
+
+    .header-title .en {
+      font-size: 12px;
+      color: var(--text-3)
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 10px
+    }
+
+    .header-date {
+      font-size: 13px;
+      color: var(--text-2);
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: 30px;
+      padding: 6px 16px;
+      font-family: 'DM Mono', monospace;
+      display: flex;
+      align-items: center;
+      gap: 6px
+    }
+
+    .header-date::before {
+      content: '🌿';
+      font-size: 12px
+    }
+
+    .header-badge {
+      font-size: 12px;
+      color: var(--primary);
+      background: var(--primary-light);
+      border: 1px solid rgba(78, 125, 43, .22);
+      border-radius: 20px;
+      padding: 5px 14px;
+      font-weight: 600
+    }
+
+    .header-login-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 20px;
+      background: var(--primary-light);
+      color: var(--primary);
+      border: 1.5px solid rgba(78, 125, 43, .3);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .2s;
+      font-family: 'Sora', sans-serif
+    }
+    .header-login-btn:hover {
+      background: var(--primary);
+      color: #fff
+    }
+    .header-login-btn.hidden {
+      display: none
+    }
+
+    .logout-btn {
+      display: none;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 20px;
+      background: var(--danger-bg);
+      color: var(--danger);
+      border: 1.5px solid rgba(192, 57, 43, .25);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .2s;
+      font-family: 'Sora', sans-serif
+    }
+
+    .logout-btn:hover {
+      background: #f8c9c4
+    }
+
+    .logout-btn.visible {
+      display: flex
+    }
+
+    .auth-user-chip {
+      display: none;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border-radius: 20px;
+      background: var(--primary-light);
+      border: 1px solid rgba(78, 125, 43, .22);
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--primary)
+    }
+
+    .auth-user-chip.visible {
+      display: flex
+    }
+
+    .tricolor {
+      height: 3px;
+      background: linear-gradient(90deg, #FF6B00 33.3%, #f0f0f0 33.3% 66.6%, #16a34a 66.6%)
+    }
+
+    /* MAIN */
+    .main {
+      padding: 26px 30px;
+      flex: 1
+    }
+
+    /* PAGE HEADER */
+    .page-header {
+      margin-bottom: 24px
+    }
+
+    .page-header h2 {
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 4px
+    }
+
+    .page-header p {
+      font-size: 14px;
+      color: var(--text-3)
+    }
+
+    /* STATS */
+    .stats-section {
+      position: relative;
+      margin-bottom: 28px
+    }
+
+    .stats-vine {
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent 5%, var(--border) 15%, var(--border) 85%, transparent 95%);
+      transform: translateY(-50%);
+      z-index: 0;
+      pointer-events: none
+    }
+
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 16px;
+      position: relative;
+      z-index: 1
+    }
+
+    .stat-card {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 20px;
+      padding: 18px 14px 16px;
+      box-shadow: var(--shadow-sm);
+      transition: transform .22s ease, box-shadow .22s ease;
+      cursor: default;
+      text-align: center;
+      position: relative;
+      overflow: hidden
+    }
+
+    .stat-card::after {
+      content: '';
+      position: absolute;
+      top: -30px;
+      right: -30px;
+      width: 90px;
+      height: 90px;
+      border-radius: 50%;
+      opacity: .07
+    }
+
+    .stat-card.total::after {
+      background: #4e7d2b
+    }
+
+    .stat-card.inward::after {
+      background: #1d6fa8
+    }
+
+    .stat-card.outward::after {
+      background: #c47e12
+    }
+
+    .stat-card.pending::after {
+      background: #c0392b
+    }
+
+    .stat-card.completed-card::after {
+      background: #166534
+    }
+
+    .stat-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-md)
+    }
+
+    .stat-circle {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 10px;
+      font-size: 24px;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, .1)
+    }
+
+    .stat-card.total .stat-circle {
+      background: linear-gradient(135deg, #e8f5da, #c8eaab);
+      border: 2px solid #b5d98a
+    }
+
+    .stat-card.inward .stat-circle {
+      background: linear-gradient(135deg, #dbeeff, #aad4f7);
+      border: 2px solid #8fc0ef
+    }
+
+    .stat-card.outward .stat-circle {
+      background: linear-gradient(135deg, #fff3d4, #ffd98a);
+      border: 2px solid #f5c35a
+    }
+
+    .stat-card.pending .stat-circle {
+      background: linear-gradient(135deg, #fde8e4, #f8b5aa);
+      border: 2px solid #f09080
+    }
+
+    .stat-card.completed-card .stat-circle {
+      background: linear-gradient(135deg, #d1fae5, #6ee7b7);
+      border: 2px solid #34d399
+    }
+
+    .stat-num {
+      font-size: 34px;
+      font-weight: 800;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+      font-family: 'Sora', sans-serif
+    }
+
+    .stat-card.total .stat-num {
+      color: var(--primary)
+    }
+
+    .stat-card.inward .stat-num {
+      color: #1565a8
+    }
+
+    .stat-card.outward .stat-num {
+      color: #b36a00
+    }
+
+    .stat-card.pending .stat-num {
+      color: var(--danger)
+    }
+
+    .stat-card.completed-card .stat-num {
+      color: var(--completed-color)
+    }
+
+    .stat-trend {
+      display: inline-flex;
+      align-items: center;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .05em;
+      padding: 3px 10px;
+      border-radius: 20px;
+      text-transform: uppercase;
+      margin-bottom: 6px
+    }
+
+    .stat-card.total .stat-trend {
+      background: var(--primary-light);
+      color: var(--primary)
+    }
+
+    .stat-card.inward .stat-trend {
+      background: #dbeeff;
+      color: #1565a8
+    }
+
+    .stat-card.outward .stat-trend {
+      background: #fff3d4;
+      color: #b36a00
+    }
+
+    .stat-card.pending .stat-trend {
+      background: var(--danger-bg);
+      color: var(--danger)
+    }
+
+    .stat-card.completed-card .stat-trend {
+      background: var(--completed-bg);
+      color: var(--completed-color)
+    }
+
+    .stat-hi {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+      margin-top: 4px;
+      font-family: 'Noto Sans Devanagari', 'Noto Sans Tamil', sans-serif
+    }
+
+    .stat-en {
+      font-size: 10px;
+      color: var(--text-3);
+      text-transform: uppercase;
+      letter-spacing: .07em;
+      margin-top: 2px
+    }
+
+    /* ALERT */
+    .alert-banner {
+      display: none;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 18px;
+      margin-bottom: 18px;
+      background: var(--danger-bg);
+      border: 1px solid rgba(192, 57, 43, .2);
+      border-radius: var(--radius-sm);
+      color: var(--danger);
+      font-size: 14px;
+      font-weight: 500;
+      border-left: 4px solid var(--danger)
+    }
+
+    .alert-banner.show {
+      display: flex
+    }
+
+    .alert-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--danger);
+      flex-shrink: 0;
+      animation: pulse 2s infinite
+    }
+
+    @keyframes pulse {
+
+      0%,
+      100% {
+        opacity: 1
+      }
+
+      50% {
+        opacity: .3
+      }
+    }
+
+    /* CONTROL BAR */
+    .control-bar {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+      box-shadow: var(--shadow-sm)
+    }
+
+    .filters-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap
+    }
+
+    .actions-group {
+      display: flex;
+      align-items: center;
+      gap: 8px
+    }
+
+    .search-wrap {
+      position: relative;
+      display: flex;
+      align-items: center
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 13px;
+      color: var(--text-3);
+      font-size: 14px;
+      pointer-events: none
+    }
+
+    .search-wrap input {
+      background: var(--surface2);
+      border: 1.5px solid var(--border);
+      border-radius: 30px;
+      padding: 9px 16px 9px 38px;
+      color: var(--text);
+      font-size: 14px;
+      font-family: 'Sora', sans-serif;
+      outline: none;
+      width: 220px;
+      transition: border-color .2s, box-shadow .2s
+    }
+
+    .search-wrap input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-glow);
+      background: var(--surface)
+    }
+
+    .search-wrap input::placeholder {
+      color: var(--text-3)
+    }
+
+    .filter-select {
+      background: var(--surface2);
+      border: 1.5px solid var(--border);
+      border-radius: 30px;
+      padding: 9px 32px 9px 14px;
+      color: var(--text);
+      font-size: 14px;
+      font-family: 'Sora', sans-serif;
+      outline: none;
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%2385997c' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 11px center;
+      transition: border-color .2s
+    }
+
+    .filter-select:focus {
+      border-color: var(--primary);
+      background-color: var(--surface)
+    }
+
+    .divider-v {
+      width: 1px;
+      height: 24px;
+      background: var(--border);
+      flex-shrink: 0;
+      margin: 0 4px
+    }
+
+    /* BUTTONS */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 10px 20px;
+      border-radius: 30px;
+      border: none;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      font-family: 'Sora', sans-serif;
+      transition: all .2s ease;
+      white-space: nowrap
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #6aad42, #4e7d2b);
+      color: #fff;
+      box-shadow: 0 2px 10px rgba(78, 125, 43, .35)
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(135deg, #7bc24e, #3d6b22);
+      box-shadow: 0 5px 18px rgba(78, 125, 43, .40);
+      transform: translateY(-1px)
+    }
+
+    .btn-ghost {
+      background: var(--surface2);
+      color: var(--text-2);
+      border: 1.5px solid var(--border)
+    }
+
+    .btn-ghost:hover {
+      color: var(--primary);
+      border-color: var(--primary);
+      background: var(--primary-light)
+    }
+
+    .btn-sm {
+      padding: 7px 14px;
+      font-size: 12px
+    }
+
+    .btn-danger {
+      background: var(--danger-bg);
+      color: var(--danger);
+      border: 1.5px solid rgba(192, 57, 43, .2)
+    }
+
+    .btn-danger:hover {
+      background: #f8c9c4;
+      border-color: var(--danger)
+    }
+
+    /* TABLE */
+    .table-wrap {
+      overflow-x: auto;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm)
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px
+    }
+
+    thead tr {
+      background: linear-gradient(90deg, #eaf5da, #f2fae9);
+      border-bottom: 1.5px solid var(--border)
+    }
+
+    thead th {
+      padding: 14px 16px;
+      text-align: left;
+      color: var(--primary-dark);
+      font-weight: 700;
+      font-size: 11.5px;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+      white-space: nowrap
+    }
+
+    tbody tr {
+      border-bottom: 1px solid #eaf3de;
+      transition: background .13s
+    }
+
+    tbody tr:last-child {
+      border-bottom: none
+    }
+
+    tbody tr:nth-child(even) {
+      background: #fafdf6
+    }
+
+    tbody tr:hover {
+      background: #f0f8e4
+    }
+
+    tbody td {
+      padding: 14px 16px;
+      color: var(--text-2);
+      vertical-align: middle
+    }
+
+    .cell-tapal-no {
+      font-family: 'DM Mono', monospace;
+      font-size: 13px;
+      color: var(--primary) !important;
+      font-weight: 600
+    }
+
+    /* BADGES */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 11px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: .04em
+    }
+
+    .badge::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: currentColor;
+      flex-shrink: 0
+    }
+
+    .badge-inward {
+      background: #dbeeff;
+      color: #1565a8
+    }
+
+    .badge-outward {
+      background: var(--warning-bg);
+      color: #b36a00
+    }
+
+    .badge-pending {
+      background: var(--warning-bg);
+      color: #b36a00
+    }
+
+    .badge-received {
+      background: var(--success-bg);
+      color: var(--success)
+    }
+
+    .badge-sent {
+      background: var(--sent-bg);
+      color: var(--sent-color)
+    }
+
+    .badge-overdue {
+      background: var(--danger-bg);
+      color: var(--danger)
+    }
+
+    .badge-completed {
+      background: var(--completed-bg);
+      color: var(--completed-color)
+    }
+
+    /* ACTION BUTTONS */
+    .row-actions {
+      display: flex;
+      gap: 6px
+    }
+
+    .action-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 34px;
+      height: 34px;
+      border-radius: 9px;
+      border: none;
+      cursor: pointer;
+      font-size: 15px;
+      transition: all .15s ease;
+      position: relative
+    }
+
+    .action-btn:hover::after {
+      content: attr(data-tip);
+      position: absolute;
+      bottom: 38px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #2e3d28;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 9px;
+      border-radius: 5px;
+      white-space: nowrap;
+      font-family: 'Sora', sans-serif;
+      pointer-events: none;
+      z-index: 10
+    }
+
+    .btn-toggle {
+      background: var(--primary-light);
+      color: var(--primary);
+      border: 1px solid rgba(78, 125, 43, .2)
+    }
+
+    .btn-toggle:hover {
+      background: #d3ecb8
+    }
+
+    .btn-delete {
+      background: var(--danger-bg);
+      color: var(--danger);
+      border: 1px solid rgba(192, 57, 43, .15)
+    }
+
+    .btn-delete:hover {
+      background: #f8c9c4
+    }
+
+    /* MARKED TO */
+    .marked-to-cell {
+      display: flex;
+      flex-direction: column;
+      gap: 2px
+    }
+
+    .marked-to-label {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--text-3);
+      letter-spacing: .06em;
+      text-transform: uppercase
+    }
+
+    .marked-to-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-2)
+    }
+
+    /* ATTACH CELL */
+    .attach-cell {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      color: var(--text-2)
+    }
+
+    .attach-cell .attach-icon {
+      font-size: 18px
+    }
+
+    .attach-cell .attach-name {
+      max-width: 110px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-size: 11px
+    }
+
+    .attach-view-btn {
+      font-size: 11px;
+      padding: 3px 9px;
+      border-radius: 12px;
+      background: var(--primary-light);
+      color: var(--primary);
+      border: 1px solid rgba(78, 125, 43, .2);
+      cursor: pointer;
+      font-weight: 600;
+      white-space: nowrap
+    }
+
+    .attach-view-btn:hover {
+      background: #c8e6a0
+    }
+
+    /* EMPTY STATE */
+    .empty-state {
+      padding: 64px 20px;
+      text-align: center;
+      color: var(--text-3)
+    }
+
+    .empty-icon {
+      font-size: 48px;
+      margin-bottom: 14px
+    }
+
+    .empty-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-2);
+      margin-bottom: 6px
+    }
+
+    .empty-sub {
+      font-size: 14px;
+      color: var(--text-3);
+      margin-bottom: 18px
+    }
+
+    /* SEARCHABLE DROPDOWN */
+    .searchable-dropdown {
+      position: relative
+    }
+
+    .searchable-dropdown input {
+      width: 100%;
+      background: var(--surface2);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      color: var(--text);
+      font-size: 14px;
+      font-family: 'Sora', sans-serif;
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+      cursor: pointer
+    }
+
+    .searchable-dropdown input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-glow);
+      background: var(--surface);
+      cursor: text
+    }
+
+    .sd-dropdown {
+      display: none;
+      position: absolute;
+      top: calc(100% + 4px);
+      left: 0;
+      right: 0;
+      background: var(--surface);
+      border: 1.5px solid var(--primary);
+      border-radius: var(--radius-sm);
+      box-shadow: var(--shadow-md);
+      z-index: 999;
+      max-height: 200px;
+      overflow-y: auto
+    }
+
+    .sd-dropdown.open {
+      display: block
+    }
+
+    .sd-option {
+      padding: 10px 14px;
+      font-size: 14px;
+      cursor: pointer;
+      color: var(--text);
+      transition: background .12s
+    }
+
+    .sd-option:hover,
+    .sd-option.active {
+      background: var(--primary-light);
+      color: var(--primary)
+    }
+
+    .sd-no-results {
+      padding: 10px 14px;
+      font-size: 13px;
+      color: var(--text-3);
+      text-align: center
+    }
+
+    /* TIMELINE */
+    .timeline-container {
+      position: relative;
+      padding-left: 60px
+    }
+
+    .timeline-line {
+      position: absolute;
+      left: 24px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: linear-gradient(180deg, var(--primary) 0%, var(--border) 100%)
+    }
+
+    .timeline-card {
+      position: relative;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px 24px;
+      margin-bottom: 16px;
+      box-shadow: var(--shadow-sm);
+      transition: box-shadow .2s
+    }
+
+    .timeline-card:hover {
+      box-shadow: var(--shadow-md)
+    }
+
+    .timeline-icon {
+      position: absolute;
+      left: -48px;
+      top: 20px;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, .12);
+      z-index: 1
+    }
+
+    .timeline-icon.inward {
+      background: linear-gradient(135deg, #dbeeff, #aad4f7);
+      border: 2px solid #8fc0ef
+    }
+
+    .timeline-icon.outward {
+      background: linear-gradient(135deg, #fff3d4, #ffd98a);
+      border: 2px solid #f5c35a
+    }
+
+    .timeline-top {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      margin-bottom: 14px;
+      gap: 12px
+    }
+
+    .timeline-date-block {
+      display: flex;
+      flex-direction: column;
+      gap: 2px
+    }
+
+    .timeline-date {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text)
+    }
+
+    .timeline-time {
+      font-size: 12px;
+      color: var(--text-3)
+    }
+
+    .timeline-type-badge {
+      margin-top: 6px
+    }
+
+    .timeline-body {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px 16px
+    }
+
+    .tl-field {
+      display: flex;
+      flex-direction: column;
+      gap: 3px
+    }
+
+    .tl-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-3);
+      letter-spacing: .05em;
+      text-transform: uppercase
+    }
+
+    .tl-value {
+      font-size: 13.5px;
+      color: var(--text-2);
+      font-weight: 500;
+      line-height: 1.4
+    }
+
+    .tl-value.highlight {
+      font-weight: 600;
+      color: var(--text)
+    }
+
+    .reminder-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 9px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 700
+    }
+
+    .reminder-badge.today {
+      background: #dcfce7;
+      color: #166534
+    }
+
+    .reminder-badge.upcoming {
+      background: var(--warning-bg);
+      color: #b36a00
+    }
+
+    .reminder-badge.overdue {
+      background: var(--danger-bg);
+      color: var(--danger)
+    }
+
+    .tl-view-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 7px 16px;
+      border-radius: 20px;
+      background: var(--surface2);
+      border: 1.5px solid var(--border);
+      color: var(--text-2);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .2s;
+      white-space: nowrap
+    }
+
+    .tl-view-btn:hover {
+      background: var(--primary-light);
+      color: var(--primary);
+      border-color: rgba(78, 125, 43, .3)
+    }
+
+    /* MODAL */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      background: rgba(20, 40, 10, .45);
+      backdrop-filter: blur(5px);
+      align-items: center;
+      justify-content: center
+    }
+
+    .modal-overlay.open {
+      display: flex;
+      animation: fadeIn .2s ease
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0
+      }
+
+      to {
+        opacity: 1
+      }
+    }
+
+    .modal {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: 22px;
+      padding: 32px;
+      width: 90%;
+      max-width: 620px;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: var(--shadow-lg);
+      animation: modalSlide .24s cubic-bezier(.16, 1, .3, 1)
+    }
+
+    @keyframes modalSlide {
+      from {
+        opacity: 0;
+        transform: translateY(16px) scale(.97)
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1)
+      }
+    }
+
+    .modal::-webkit-scrollbar {
+      width: 5px
+    }
+
+    .modal::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 3px
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      padding-bottom: 18px;
+      border-bottom: 1.5px solid var(--border)
+    }
+
+    .modal-title .hi {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--primary);
+      font-family: 'Noto Sans Devanagari', 'Noto Sans Tamil', sans-serif
+    }
+
+    .modal-title .en {
+      font-size: 13px;
+      color: var(--text-3);
+      margin-top: 2px
+    }
+
+    .modal-close {
+      width: 34px;
+      height: 34px;
+      border-radius: 9px;
+      background: var(--surface2);
+      border: 1.5px solid var(--border);
+      color: var(--text-2);
+      font-size: 15px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all .15s
+    }
+
+    .modal-close:hover {
+      background: var(--danger-bg);
+      color: var(--danger);
+      border-color: rgba(192, 57, 43, .25)
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px
+    }
+
+    .form-full {
+      grid-column: 1/-1
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px
+    }
+
+    .form-group label {
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--text-2);
+      letter-spacing: .07em;
+      text-transform: uppercase
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      background: var(--surface2);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      color: var(--text);
+      font-size: 14px;
+      font-family: 'Sora', sans-serif;
+      outline: none;
+      resize: vertical;
+      transition: border-color .2s, box-shadow .2s;
+      -webkit-appearance: none
+    }
+
+    .form-group select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%2385997c' stroke-width='2.5'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      padding-right: 32px;
+      cursor: pointer
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-glow);
+      background: var(--surface)
+    }
+
+    .modal-footer {
+      margin-top: 24px;
+      padding-top: 18px;
+      border-top: 1.5px solid var(--border);
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end
+    }
+
+    /* FILE UPLOAD */
+    .file-upload-area {
+      border: 2px dashed var(--border-md);
+      border-radius: var(--radius-sm);
+      padding: 18px;
+      text-align: center;
+      cursor: pointer;
+      transition: all .2s;
+      background: var(--surface2)
+    }
+
+    .file-upload-area:hover,
+    .file-upload-area.drag-over {
+      border-color: var(--primary);
+      background: var(--primary-light)
+    }
+
+    .file-upload-area input[type=file] {
+      display: none
+    }
+
+    .file-upload-icon {
+      font-size: 32px;
+      margin-bottom: 8px
+    }
+
+    .file-upload-text {
+      font-size: 13px;
+      color: var(--text-3);
+      margin-bottom: 4px
+    }
+
+    .file-upload-hint {
+      font-size: 11px;
+      color: var(--text-3)
+    }
+
+    .file-preview {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      background: var(--success-bg);
+      border: 1px solid rgba(58, 138, 74, .2);
+      border-radius: var(--radius-sm);
+      margin-top: 10px
+    }
+
+    .file-preview-icon {
+      font-size: 24px
+    }
+
+    .file-preview-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--success);
+      flex: 1
+    }
+
+    .file-preview-remove {
+      background: none;
+      border: none;
+      color: var(--danger);
+      cursor: pointer;
+      font-size: 16px;
+      padding: 2px
+    }
+
+    /* PDF VIEWER */
+    .pdf-modal {
+      background: var(--surface);
+      border-radius: 22px;
+      width: 95%;
+      max-width: 900px;
+      max-height: 95vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--shadow-lg);
+      overflow: hidden
+    }
+
+    .pdf-modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 24px;
+      border-bottom: 1.5px solid var(--border)
+    }
+
+    .pdf-modal-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px
+    }
+
+    .pdf-modal-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text)
+    }
+
+    .pdf-modal-sub {
+      font-size: 12px;
+      color: var(--text-3)
+    }
+
+    .pdf-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 8px
+    }
+
+    .pdf-toolbar button {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 7px 14px;
+      border-radius: 20px;
+      border: 1.5px solid var(--border);
+      background: var(--surface2);
+      color: var(--text-2);
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .2s
+    }
+
+    .pdf-toolbar button:hover {
+      background: var(--primary-light);
+      color: var(--primary);
+      border-color: rgba(78, 125, 43, .3)
+    }
+
+    .pdf-viewer {
+      flex: 1;
+      overflow: hidden;
+      background: #525659;
+      min-height: 500px
+    }
+
+    .pdf-viewer iframe {
+      width: 100%;
+      height: 100%;
+      min-height: 500px;
+      border: none;
+      display: block
+    }
+
+    .pdf-no-file {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 12px;
+      padding: 60px;
+      color: var(--text-3)
+    }
+
+    .pdf-no-file .pdf-no-icon {
+      font-size: 48px
+    }
+
+    .pdf-no-file .pdf-no-text {
+      font-size: 16px;
+      font-weight: 600
+    }
+
+    /* AUTH MODAL */
+    .auth-modal {
+      background: var(--surface);
+      border-radius: 20px;
+      width: 90%;
+      max-width: 380px;
+      box-shadow: var(--shadow-lg);
+      animation: modalSlide .24s cubic-bezier(.16, 1, .3, 1);
+      overflow: hidden
+    }
+
+    .auth-modal-header {
+      background: linear-gradient(135deg, #2e5119, #4e7d2b);
+      padding: 24px 28px;
+      text-align: center
+    }
+
+    .auth-modal-icon {
+      font-size: 36px;
+      margin-bottom: 8px
+    }
+
+    .auth-modal-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 4px
+    }
+
+    .auth-modal-sub {
+      font-size: 13px;
+      color: rgba(255, 255, 255, .7)
+    }
+
+    .auth-modal-body {
+      padding: 24px 28px
+    }
+
+    .auth-error {
+      display: none;
+      background: var(--danger-bg);
+      border: 1px solid rgba(192, 57, 43, .25);
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: var(--danger);
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      text-align: center
+    }
+
+    .auth-error.show {
+      display: block
+    }
+
+    .auth-success {
+      display: none;
+      background: var(--completed-bg);
+      border: 1px solid rgba(22, 101, 52, .25);
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: var(--completed-color);
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 16px;
+      text-align: center
+    }
+
+    .auth-success.show {
+      display: block
+    }
+
+    .auth-modal-footer {
+      padding: 0 28px 24px;
+      display: flex;
+      gap: 10px
+    }
+
+    /* REPORTS */
+    .report-summary-cards {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 24px
+    }
+
+    .report-card {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      align-items: center;
+      gap: 14px
+    }
+
+    .report-card-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      flex-shrink: 0
+    }
+
+    .report-card-info .rc-num {
+      font-size: 28px;
+      font-weight: 800;
+      line-height: 1;
+      font-family: 'Sora', sans-serif
+    }
+
+    .report-card-info .rc-label {
+      font-size: 12px;
+      color: var(--text-3);
+      margin-top: 3px;
+      font-weight: 600
+    }
+
+    .report-card-info .rc-sub {
+      font-size: 11px;
+      color: var(--text-3);
+      margin-top: 1px
+    }
+
+    .rc-total .report-card-icon {
+      background: var(--primary-light);
+      color: var(--primary)
+    }
+
+    .rc-total .rc-num {
+      color: var(--primary)
+    }
+
+    .rc-inward .report-card-icon {
+      background: #dbeeff;
+      color: #1565a8
+    }
+
+    .rc-inward .rc-num {
+      color: #1565a8
+    }
+
+    .rc-outward .report-card-icon {
+      background: var(--warning-bg);
+      color: #b36a00
+    }
+
+    .rc-outward .rc-num {
+      color: #b36a00
+    }
+
+    .rc-overdue .report-card-icon {
+      background: var(--danger-bg);
+      color: var(--danger)
+    }
+
+    .rc-overdue .rc-num {
+      color: var(--danger)
+    }
+
+    .chart-container {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      justify-content: center
+    }
+
+    .chart-container canvas {
+      max-width: 420px;
+      max-height: 320px
+    }
+
+    .monthly-filters {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 18px;
+      box-shadow: var(--shadow-sm)
+    }
+
+    .monthly-chart-wrap {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+      box-shadow: var(--shadow-sm)
+    }
+
+    .monthly-chart-wrap canvas {
+      width: 100% !important;
+      max-height: 300px
+    }
+
+    .monthly-stat-cards {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 20px
+    }
+
+    .pending-table-wrap {
+      margin-top: 20px;
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden
+    }
+
+    .days-left-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 700
+    }
+
+    .days-left-badge.today-badge {
+      background: #dcfce7;
+      color: #166534
+    }
+
+    .days-left-badge.warn-badge {
+      background: var(--warning-bg);
+      color: #b36a00
+    }
+
+    .days-left-badge.over-badge {
+      background: var(--danger-bg);
+      color: var(--danger)
+    }
+
+    /* SETTINGS */
+    .welcome-card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 30px;
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: var(--shadow-sm)
+    }
+
+    #settingsSection .welcome-left {
+      max-width: 100%;
+      width: 100%
+    }
+
+    .welcome-left h1 {
+      color: var(--primary);
+      margin-bottom: 12px;
+      font-size: 28px
+    }
+
+    .welcome-left p {
+      margin-bottom: 10px;
+      color: var(--text-2);
+      font-size: 15px
+    }
+
+    .welcome-right {
+      font-size: 120px;
+      opacity: .8
+    }
+
+    .settings-cards {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-top: 30px
+    }
+
+    .settings-card {
+      width: 200px;
+      background: #fff;
+      border: 1px solid #e5e5e5;
+      border-radius: 20px;
+      padding: 22px 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: .3s;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, .08)
+    }
+
+    .settings-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, .12)
+    }
+
+    .settings-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: auto auto 16px;
+      font-size: 28px
+    }
+
+    .settings-card h3 {
+      font-size: 16px;
+      margin-bottom: 10px
+    }
+
+    .settings-card p {
+      color: #666;
+      line-height: 1.7;
+      min-height: 60px;
+      font-size: 13px
+    }
+
+    .card-line {
+      width: 60px;
+      height: 4px;
+      border-radius: 20px;
+      margin: 20px auto 0
+    }
+
+    .blue {
+      background: #3b82f6
+    }
+
+    .red {
+      background: #ef4444
+    }
+
+    .green {
+      background: #22c55e
+    }
+
+    .report-menu {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      margin-top: 28px;
+      flex-wrap: wrap
+    }
+
+    .report-box {
+      width: 230px;
+      padding: 26px;
+      background: white;
+      border-radius: 14px;
+      text-align: center;
+      cursor: pointer;
+      font-size: 17px;
+      font-weight: 600;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, .1);
+      transition: .3s
+    }
+
+    .report-box:hover {
+      transform: translateY(-5px)
+    }
+
+    .office .settings-icon {
+      background: #eef4ff;
+      color: #3b82f6
+    }
+
+    .personal .settings-icon {
+      background: #fff1f2;
+      color: #ef4444
+    }
+
+    .reports .settings-icon {
+      background: #f0fdf4;
+      color: #22c55e
+    }
+
+    .masterdata .settings-icon {
+      background: #fef9c3;
+      color: #ca8a04
+    }
+
+    #settingsSection .welcome-card {
+      border: none;
+      box-shadow: none;
+      background: transparent;
+      display: flex;
+      justify-content: center;
+      align-items: center
+    }
+
+    #settingsSection .welcome-left {
+      text-align: center
+    }
+
+    /* MASTER DATA */
+    .master-section {
+      margin-bottom: 28px
+    }
+
+    .master-section h3 {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px
+    }
+
+    .master-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 280px;
+      overflow-y: auto;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--surface2);
+      padding: 10px
+    }
+
+    .master-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px
+    }
+
+    .master-item-name {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text)
+    }
+
+    .master-item-actions {
+      display: flex;
+      gap: 6px
+    }
+
+    .master-add-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 12px
+    }
+
+    .master-add-row input {
+      flex: 1;
+      background: var(--surface2);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 9px 13px;
+      color: var(--text);
+      font-size: 14px;
+      font-family: 'Sora', sans-serif;
+      outline: none
+    }
+
+    .master-add-row input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px var(--primary-glow)
+    }
+
+    /* FOOTER */
+    footer {
+      text-align: center;
+      padding: 20px 28px;
+      font-size: 12px;
+      color: var(--text-3);
+      border-top: 1px solid var(--border);
+      margin-top: auto;
+      background: var(--surface);
+      letter-spacing: .03em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px
+    }
+
+    footer span {
+      color: var(--primary);
+      font-weight: 600
+    }
+
+    footer::before {
+      content: '🌿';
+      font-size: 14px
+    }
+
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 5px
+    }
+
+    ::-webkit-scrollbar-track {
+      background: var(--bg)
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: var(--border-md);
+      border-radius: 3px
+    }
+
+    .hamburger {
+      display: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      flex-direction: column;
+      gap: 4px;
+      padding: 4px
+    }
+
+    .hamburger span {
+      display: block;
+      width: 22px;
+      height: 2px;
+      background: var(--text);
+      border-radius: 2px;
+      transition: all .2s
+    }
+
+    @media(max-width:900px) {
+      .stats-row {
+        grid-template-columns: repeat(3, 1fr)
+      }
+
+      .monthly-stat-cards,
+      .report-summary-cards {
+        grid-template-columns: repeat(2, 1fr)
+      }
+    }
+
+    @media(max-width:768px) {
+      .sidebar {
+        transform: translateX(-100%);
+        transition: transform .28s ease
+      }
+
+      .sidebar.open {
+        transform: translateX(0)
+      }
+
+      .app-wrapper {
+        margin-left: 0
+      }
+
+      header {
+        padding: 0 16px
+      }
+
+      .main {
+        padding: 16px
+      }
+
+      .hamburger {
+        display: flex
+      }
+
+      .header-badge {
+        display: none
+      }
+
+      .sidebar-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 199;
+        background: rgba(0, 0, 0, .4)
+      }
+
+      .sidebar-overlay.show {
+        display: block
+      }
+
+      .timeline-body {
+        grid-template-columns: 1fr 1fr
+      }
+    }
+
+    @media(max-width:600px) {
+      .stats-row {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 12px
+      }
+
+      .monthly-stat-cards,
+      .report-summary-cards {
+        grid-template-columns: 1fr 1fr;
+        gap: 12px
+      }
+
+      .form-grid {
+        grid-template-columns: 1fr
+      }
+
+      .control-bar {
+        flex-direction: column;
+        align-items: stretch
+      }
+
+      .filters-group,
+      .actions-group {
+        flex-wrap: wrap
+      }
+
+      .search-wrap input {
+        width: 100%
+      }
+
+      .modal {
+        padding: 20px 16px
+      }
+
+      .timeline-body {
+        grid-template-columns: 1fr
+      }
+
+      .pdf-toolbar {
+        flex-wrap: wrap
+      }
+
+      /*verified*/
+
+      .verified-badge {
+        background: #dcfce7;
+        color: #166534;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 700;
+      }
+
+      .action-btn.btn-edit {
+        background: #eff6ff;
+        color: #1d4ed8;
+        border: 1px solid #bfdbfe;
+      }
+      .action-btn.btn-edit:hover {
+        background: #dbeafe;
+        border-color: #93c5fd;
+      }
+
+      .verify-check {
+        transform: scale(1.2);
+        cursor: pointer;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+    <svg class="leaf-deco top" width="80" height="80" viewBox="0 0 80 80" fill="none">
+      <path d="M70 10 C70 10 20 20 10 70 C10 70 60 60 70 10Z" fill="white" />
+      <path d="M40 10 L40 70" stroke="rgba(255,255,255,0.3)" stroke-width="1" />
+    </svg>
+    <svg class="leaf-deco mid" width="60" height="100" viewBox="0 0 60 100" fill="none">
+      <path d="M50 5 C50 5 0 30 10 95 C10 95 60 70 50 5Z" fill="white" />
+    </svg>
+    <div class="sidebar-logo">
+      <div class="sidebar-logo-emblem"><img src="avnl.webp"
+          style="width:100%;height:100%;object-fit:cover;border-radius:12px;" onerror="this.style.display='none'">
+      </div>
+      <div class="sidebar-logo-text">
+        <div class="hi">तपाल प्रबंधक</div>
+        <div class="en">Tapal Manager</div>
+      </div>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-label" data-i18n="nav_main"></div>
+      <a class="nav-item active" onclick="showSection('dashboard',this)"><span class="nav-icon">🏠</span><span
+          data-i18n="nav_dashboard"></span></a>
+      <a class="nav-item" onclick="showSection('list',this)"><span class="nav-icon">📋</span><span
+          data-i18n="nav_tapal_list"></span></a>
+      <a class="nav-item" onclick="showSection('timeline',this)"><span class="nav-icon">🕐</span><span
+          data-i18n="nav_timeline"></span></a>
+      <div class="nav-label" data-i18n="nav_actions"></div>
+      <a class="nav-item" onclick="openModal();closeSidebar();"><span class="nav-icon">➕</span><span
+          data-i18n="btn_new_tapal"></span></a>
+      <a class="nav-item" onclick="exportCSV()"><span class="nav-icon">📥</span><span data-i18n="nav_export"></span></a>
+      <div class="nav-label" data-i18n="nav_system"></div>
+      <a class="nav-item" onclick="showSection('settings',this)"><span class="nav-icon">⚙️</span><span
+          data-i18n="nav_settings"></span></a>
+    </nav>
+    <div class="lang-switcher">
+      <button class="lang-btn" id="langHi" onclick="setLanguage('hi')">हिंदी</button>
+      <button class="lang-btn" id="langEn" onclick="setLanguage('en')">English</button>
+      <button class="lang-btn" id="langTa" onclick="setLanguage('ta')">தமிழ்</button>
+    </div>
+    <div class="sidebar-bottom">
+      <div class="sidebar-brand-tag">rajbhashaintelligence.com</div>
+    </div>
+  </aside>
+
+  <!-- MAIN APP -->
+  <div class="app-wrapper">
+    <header>
+      <div style="display:flex;align-items:center;gap:12px;">
+        <button class="hamburger" onclick="toggleSidebar()"><span></span><span></span><span></span></button>
+        <div class="header-title">
+          <div class="hi">एवीएनएल शिक्षण संस्थान</div>
+          <div class="en">AVNL INSTITUTE OF LEARNING</div>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="header-date" id="currentDate"></div>
+        <div class="auth-user-chip" id="authUserChip">👤 <span id="authUserName"></span></div>
+        <button class="header-login-btn" id="headerLoginBtn" onclick="requireAuth(()=>{})" data-i18n="btn_login"></button>
+        <button class="logout-btn" id="logoutBtn" onclick="doLogout()" data-i18n="btn_logout"></button>
+        <div class="header-badge">avnliolav.com</div>
+      </div>
+    </header>
+    <div class="tricolor"></div>
+
+    <div class="main">
+      <!-- DASHBOARD -->
+      <div id="dashboardSection">
+        <div class="welcome-card" style="display:block;">
+          <div style="width:100%;">
+            <h1>नमस्कार! 👋</h1>
+            <p><strong>एवीएनएल शिक्षण संस्थान</strong> में आपका हार्दिक स्वागत है।</p>
+            <p>यहाँ से आप अपने सभी तपाल को आसानी से प्रबंधित, ट्रैक और रिपोर्ट कर सकते हैं।</p>
+            <hr style="margin:12px 0;">
+            <h1>Welcome! 👋</h1>
+            <p>Welcome to AVNL INSTITUTE OF LEARNING. Manage, track and report all your tapals with ease.</p>
+          </div>
+          <div class="welcome-right">📩</div>
+        </div>
+        <div class="stats-section">
+          <div class="stats-vine"></div>
+          <div class="stats-row">
+            <div class="stat-card total">
+              <div class="stat-circle">📋</div>
+              <div class="stat-trend">सभी</div>
+              <div class="stat-num" id="statTotal">0</div>
+              <div class="stat-hi" data-i18n="stat_total_hi"></div>
+              <div class="stat-en">TOTAL</div>
+            </div>
+            <div class="stat-card inward">
+              <div class="stat-circle">📥</div>
+              <div class="stat-trend">आवक</div>
+              <div class="stat-num" id="statInward">0</div>
+              <div class="stat-hi" data-i18n="stat_inward_hi"></div>
+              <div class="stat-en">INWARD</div>
+            </div>
+            <div class="stat-card outward">
+              <div class="stat-circle">📤</div>
+              <div class="stat-trend">जावक</div>
+              <div class="stat-num" id="statOutward">0</div>
+              <div class="stat-hi" data-i18n="stat_outward_hi"></div>
+              <div class="stat-en">OUTWARD</div>
+            </div>
+            <div class="stat-card pending">
+              <div class="stat-circle">⏳</div>
+              <div class="stat-trend">लंबित</div>
+              <div class="stat-num" id="statPending">0</div>
+              <div class="stat-hi" data-i18n="stat_pending_hi"></div>
+              <div class="stat-en">PENDING</div>
+            </div>
+            <div class="stat-card completed-card">
+              <div class="stat-circle">✅</div>
+              <div class="stat-trend" data-i18n="stat_completed_trend"></div>
+              <div class="stat-num" id="statCompleted">0</div>
+              <div class="stat-hi" data-i18n="stat_completed_hi"></div>
+              <div class="stat-en">COMPLETED</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="alert-banner" id="overdueAlert">
+        <div class="alert-dot"></div><span id="overdueText"></span>
+      </div>
+
+      <!-- TAPAL LIST -->
+      <div id="tapalSection" style="display:none;">
+        <div class="control-bar">
+          <div class="filters-group">
+            <div class="search-wrap"><span class="search-icon">🔍</span><input type="text" id="searchInput"
+                oninput="renderTable()"></div>
+            <div class="divider-v"></div>
+            <select class="filter-select" id="filterType" onchange="renderTable()">
+              <option value="" data-i18n-opt="filter_all_types"></option>
+              <option value="आवक" data-i18n-opt="type_inward"></option>
+              <option value="जावक" data-i18n-opt="type_outward"></option>
+            </select>
+            <select class="filter-select" id="filterStatus" onchange="renderTable()">
+              <option value="" data-i18n-opt="filter_all_status"></option>
+              <option value="Pending" data-i18n-opt="status_pending"></option>
+              <option value="Received" data-i18n-opt="status_received"></option>
+              <option value="Sent" data-i18n-opt="status_sent"></option>
+              <option value="Overdue" data-i18n-opt="status_overdue"></option>
+              <option value="Completed" data-i18n-opt="status_completed"></option>
+            </select>
+            <input type="date" id="filterDate" class="filter-select" onchange="renderTable()">
+            <button class="btn btn-ghost" onclick="showAllTapals()" data-i18n="btn_show_all"></button>
+          </div>
+          <div class="actions-group">
+            <button class="btn btn-ghost" onclick="exportCSV()" data-i18n="btn_export"></button>
+            <button class="btn btn-primary" onclick="openModal()" data-i18n="btn_new_tapal_full"></button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th data-i18n="th_sno"></th>
+                <th data-i18n="th_tapal_no"></th>
+                <th data-i18n="th_date"></th>
+                <th data-i18n="th_type"></th>
+                <th data-i18n="th_from_to"></th>
+                <th data-i18n="th_marked_to"></th>
+                <th data-i18n="th_language"></th>
+                <th data-i18n="th_status"></th>
+                <th data-i18n="th_attached_file"></th>
+                <th data-i18n="th_verified"></th>
+                <th data-i18n="th_actions"></th>
+              </tr>
+            </thead>
+            <tbody id="tapalTableBody"></tbody>
+          </table>
+        </div>
+        <div class="empty-state" id="emptyState" style="display:none">
+          <div class="empty-icon">📭</div>
+          <div class="empty-title" data-i18n="empty_title"></div>
+          <div class="empty-sub" data-i18n="empty_sub"></div>
+          <button class="btn btn-primary" onclick="openModal()" data-i18n="btn_add_tapal"></button>
+        </div>
+      </div>
+
+      <!-- TIMELINE -->
+      <div id="timelineSection" style="display:none;">
+        <div class="page-header">
+          <h2 data-i18n="nav_timeline"></h2>
+          <p data-i18n="timeline_subtitle"></p>
+        </div>
+        <div class="timeline-container" id="timelineContent"></div>
+        <div class="empty-state" id="timelineEmpty" style="display:none">
+          <div class="empty-icon">🕐</div>
+          <div class="empty-title" data-i18n="empty_timeline_title"></div>
+          <div class="empty-sub" data-i18n="empty_timeline_sub"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div id="settingsSection" style="display:none;padding:26px 30px;">
+      <div class="welcome-card">
+        <div class="welcome-left">
+          <div style="text-align:center;margin-bottom:30px;">
+            <div
+              style="width:90px;height:90px;border-radius:50%;background:#f3e8ff;display:flex;align-items:center;justify-content:center;margin:auto;font-size:42px;color:#8b5cf6;">
+              ⚙️</div>
+            <h1 style="margin-top:15px;font-size:34px;" data-i18n="settings_title"></h1>
+            <p style="font-size:15px;color:#666;" data-i18n="settings_subtitle"></p>
+          </div>
+          <div id="settingsHome">
+            <div class="settings-cards">
+              <div class="settings-card office" onclick="showSettingsTab('officeProfile')">
+                <div class="settings-icon">🏢</div>
+                <h3 data-i18n="office_profile"></h3>
+                <p data-i18n="office_profile_desc"></p>
+                <div class="card-line blue"></div>
+              </div>
+              <div class="settings-card personal" onclick="showSettingsTab('personalization')">
+                <div class="settings-icon">👤</div>
+                <h3 data-i18n="personalization"></h3>
+                <p data-i18n="personalization_desc"></p>
+                <div class="card-line red"></div>
+              </div>
+              <div class="settings-card reports" onclick="showSettingsTab('reports')">
+                <div class="settings-icon">📊</div>
+                <h3 data-i18n="reports_monitoring"></h3>
+                <p data-i18n="reports_monitoring_desc"></p>
+                <div class="card-line green"></div>
+              </div>
+              <div class="settings-card masterdata" onclick="showSettingsTab('masterdata')">
+                <div class="settings-icon">🗄️</div>
+                <h3 data-i18n="master_data"></h3>
+                <p data-i18n="master_data_desc"></p>
+                <div class="card-line" style="background:#ca8a04"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Office Profile -->
+          <div id="officeProfileTab" style="display:none">
+            <h2>🏢 <span data-i18n="office_profile"></span></h2><br>
+            <table style="width:100%;font-size:15px;line-height:2.2;">
+              <tr>
+                <td><b data-i18n="office_name"></b></td>
+                <td>:</td>
+                <td data-i18n="office_name_value"></td>
+              </tr>
+              <tr>
+                <td><b data-i18n="ministry_department"></b></td>
+                <td>:</td>
+                <td data-i18n="ministry_value"></td>
+              </tr>
+              <tr>
+                <td><b data-i18n="office_code"></b></td>
+                <td>:</td>
+                <td>20</td>
+              </tr>
+              <tr>
+                <td><b data-i18n="office_address"></b></td>
+                <td>:</td>
+                <td data-i18n="address_value"></td>
+              </tr>
+              <tr>
+                <td><b data-i18n="phone_no"></b></td>
+                <td>:</td>
+                <td>044-26843367<br>044-26843004</td>
+              </tr>
+              <tr>
+                <td><b data-i18n="fax_no"></b></td>
+                <td>:</td>
+                <td>044-26375479</td>
+              </tr>
+              <tr>
+                <td><b data-i18n="email"></b></td>
+                <td>:</td>
+                <td>iolavd@avnl.co.in</td>
+              </tr>
+              <tr>
+                <td><b data-i18n="website"></b></td>
+                <td>:</td>
+                <td>avnl.co.in</td>
+              </tr>
+            </table><br>
+            <button class="btn btn-ghost" onclick="backToSettings()">← <span data-i18n="back"></span></button>
+          </div>
+
+          <!-- Personalization -->
+          <div id="personalizationTab" style="display:none">
+            <h2>🎨 <span data-i18n="personalization"></span></h2><br>
+            <div class="form-group" style="margin-bottom:16px;max-width:300px;"><label
+                data-i18n="sidebar_color"></label><input type="color" id="sidebarColor"
+                style="height:40px;cursor:pointer;"></div>
+            <div class="form-group" style="margin-bottom:16px;max-width:300px;"><label
+                data-i18n="background_color"></label><input type="color" id="bgColor"
+                style="height:40px;cursor:pointer;"></div>
+            <div class="form-group" style="margin-bottom:20px;max-width:300px;"><label
+                data-i18n="header_color"></label><input type="color" id="headerColor"
+                style="height:40px;cursor:pointer;"></div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;">
+              <button class="btn btn-primary" onclick="saveTheme()">Save Theme</button>
+              <button class="btn btn-ghost" onclick="resetTheme()">Reset</button>
+              <button class="btn btn-ghost" onclick="backToSettings()">← <span data-i18n="back"></span></button>
+            </div>
+          </div>
+
+          <!-- Reports -->
+          <div id="reportsTab" style="display:none">
+            <h2>📊 <span data-i18n="reports_monitoring"></span></h2><br>
+            <div class="report-menu">
+              <div class="report-box" onclick="showMonthlyReport()">📈 <span data-i18n="monthly_report"></span></div>
+              <div class="report-box" onclick="showPendingReport()">⏳ <span data-i18n="pending_report"></span></div>
+            </div><br>
+            <button class="btn btn-ghost" onclick="backToSettings()">← <span data-i18n="back"></span></button>
+          </div>
+
+          <!-- Monthly Report -->
+          <div id="monthlyReportPage" style="display:none;">
+            <h2>📈 <span data-i18n="monthly_report"></span></h2><br>
+            <div class="monthly-stat-cards" id="monthlyStatCards"></div>
+            <div class="monthly-filters">
+              <span style="font-weight:700;font-size:14px;color:var(--text-2);" data-i18n="select_period"></span>
+              <select class="filter-select" id="monthlyMonth" onchange="renderMonthlyChart()"></select>
+              <select class="filter-select" id="monthlyYear" onchange="renderMonthlyChart()"></select>
+            </div>
+            <div class="monthly-chart-wrap"><canvas id="monthlyChart"></canvas></div><br>
+            <button class="btn btn-ghost" onclick="backToReports()">← <span data-i18n="back"></span></button>
+          </div>
+
+          <!-- Pending Report -->
+          <div id="pendingReportPage" style="display:none;">
+            <h2>⏳ <span data-i18n="pending_report"></span></h2><br>
+            <div class="report-summary-cards" id="pendingReportCards"></div>
+            <div class="chart-container"><canvas id="pendingChart"></canvas></div>
+            <div class="pending-table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th data-i18n="th_date"></th>
+                    <th data-i18n="th_type"></th>
+                    <th data-i18n="th_tapal_no"></th>
+                    <th data-i18n="th_subject"></th>
+                    <th data-i18n="th_from_to"></th>
+                    <th data-i18n="th_marked_to"></th>
+                    <th data-i18n="th_reminder_date"></th>
+                    <th data-i18n="th_status"></th>
+                    <th data-i18n="th_days_left"></th>
+                    <th data-i18n="th_actions"></th>
+                  </tr>
+                </thead>
+                <tbody id="pendingTableBody"></tbody>
+              </table>
+            </div><br>
+            <button class="btn btn-ghost" onclick="backToReports()">← <span data-i18n="back"></span></button>
+          </div>
+
+          <!-- Master Data -->
+          <div id="masterdataTab" style="display:none;">
+            <h2>🗄️ <span data-i18n="master_data"></span></h2><br>
+            <div class="master-section">
+              <h3>👤 <span data-i18n="lbl_marked_to_officers"></span></h3>
+              <div class="master-list" id="officerList"></div>
+              <div class="master-add-row"><input type="text" id="newOfficerInput" data-i18n-ph="ph_add_officer"><button
+                  class="btn btn-primary btn-sm" onclick="addMasterItem('officers','newOfficerInput','officerList')"
+                  data-i18n="btn_add"></button>
+              </div>
+            </div>
+            <div class="master-section">
+              <h3>🏙️ <span data-i18n="lbl_cities"></span></h3>
+              <div class="master-list" id="cityList"></div>
+              <div class="master-add-row"><input type="text" id="newCityInput" data-i18n-ph="ph_add_city"><button
+                  class="btn btn-primary btn-sm" onclick="addMasterItem('cities','newCityInput','cityList')"
+                  data-i18n="btn_add"></button></div>
+            </div>
+            <div class="master-section">
+              <h3>📄 <span data-i18n="lbl_tapal_types_master"></span></h3>
+              <div class="master-list" id="tapalTypeList"></div>
+              <div class="master-add-row"><input type="text" id="newTapalTypeInput"
+                  data-i18n-ph="ph_add_tapal_type"><button class="btn btn-primary btn-sm"
+                  onclick="addMasterItem('tapalTypes','newTapalTypeInput','tapalTypeList')"
+                  data-i18n="btn_add"></button></div>
+            </div>
+            <div class="master-section">
+              <h3>🏭 <span data-i18n="lbl_factory_master"></span></h3>
+              <div class="master-list" id="factoryList"></div>
+              <div class="master-add-row"><input type="text" id="newFactoryInput" data-i18n-ph="ph_add_factory"><button
+                  class="btn btn-primary btn-sm" onclick="addMasterItem('factories','newFactoryInput','factoryList')"
+                  data-i18n="btn_add"></button>
+              </div>
+            </div>
+            <button class="btn btn-ghost" onclick="backToSettings()">← <span data-i18n="back"></span></button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <footer>
+      <span data-i18n="footer_text"></span> &nbsp;·&nbsp;
+      <span data-i18n="footer_storage"></span> &nbsp;·&nbsp;
+      <span>avnliolav.com</span>
+    </footer>
+  </div>
+
+  <!-- NEW TAPAL MODAL -->
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">
+          <div class="hi" data-i18n="modal_title_hi"></div>
+          <div class="en" data-i18n="modal_title_en"></div>
+        </div>
+        <button class="modal-close" onclick="closeModal()">✕</button>
+      </div>
+      <div class="form-grid">
+        <div class="form-group"><label data-i18n="lbl_tapal_no"></label><input type="text" id="fTapalNo"
+            data-i18n-ph="ph_tapal_no"></div>
+        <div class="form-group"><label data-i18n="lbl_received_date"></label><input type="date" id="fDate"></div>
+        <div class="form-group"><label data-i18n="lbl_type"></label>
+          <select id="fType">
+            <option value="" data-i18n-opt="select_choose"></option>
+            <option value="आवक" data-i18n-opt="type_inward"></option>
+            <option value="जावक" data-i18n-opt="type_outward"></option>
+          </select>
+        </div>
+        <div class="form-group"><label data-i18n="lbl_language"></label>
+          <select id="fLang">
+            <option value="" data-i18n-opt="select_choose"></option>
+            <option value="हिंदी" data-i18n-opt="lang_hindi"></option>
+            <option value="अंग्रेजी" data-i18n-opt="lang_english"></option>
+            <option value="तमिल" data-i18n-opt="lang_tamil"></option>
+            <option value="द्विभाषी" data-i18n-opt="lang_bilingual"></option>
+          </select>
+        </div>
+        <div class="form-group form-full">
+          <label data-i18n="lbl_factory"></label>
+          <div class="searchable-dropdown" id="factoryDropdownWrap">
+            <input type="text" id="fFactorySearch" data-i18n-ph="ph_factory_search" autocomplete="off"
+              oninput="filterFactoryDropdown()" onfocus="openFactoryDropdown()" onblur="closeFactoryDropdownDelay()">
+            <input type="hidden" id="fFactory">
+            <div class="sd-dropdown" id="factoryDropdownList"></div>
+          </div>
+        </div>
+        <div class="form-group"><label data-i18n="lbl_tapal_type"></label><select id="fTapalType">
+            <option value="" data-i18n-opt="select_choose"></option>
+          </select></div>
+        <div class="form-group"><label data-i18n="lbl_marked_to"></label><select id="fMarkedTo">
+            <option value="" data-i18n-opt="select_choose"></option>
+          </select></div>
+        <div class="form-group form-full"><label data-i18n="lbl_firm_name"></label><input type="text" id="fFirmName">
+        </div>
+        <div class="form-group form-full"><label data-i18n="lbl_from_to"></label><input type="text" id="fFromTo"
+            data-i18n-ph="ph_from_to"></div>
+        <div class="form-group form-full"><label data-i18n="lbl_city"></label><select id="fCity">
+            <option value="" data-i18n-opt="select_choose"></option>
+          </select></div>
+        <div class="form-group form-full"><label data-i18n="lbl_subject"></label><input type="text" id="fSubject"
+            data-i18n-ph="ph_subject"></div>
+        <div class="form-group"><label data-i18n="lbl_status"></label>
+          <select id="fStatus">
+            <option value="लंबित" data-i18n-opt="status_pending"></option>
+            <option value="प्राप्त" data-i18n-opt="status_received"></option>
+            <option value="भेजा गया" data-i18n-opt="status_sent"></option>
+            <option value="अतिदेय" data-i18n-opt="status_overdue"></option>
+            <option value="पूर्ण" data-i18n-opt="status_completed"></option>
+          </select>
+        </div>
+        <div class="form-group"><label data-i18n="lbl_reminder"></label><input type="date" id="fReminder"></div>
+        <div class="form-group form-full"><label data-i18n="lbl_remarks"></label><textarea id="fRemarks" rows="2"
+            data-i18n-ph="ph_remarks"></textarea></div>
+        <div class="form-group form-full">
+          <label data-i18n="lbl_attached_file"></label>
+          <div class="file-upload-area" id="fileDropArea" onclick="document.getElementById('fAttachment').click()">
+            <input type="file" id="fAttachment" accept=".pdf,application/pdf" onchange="handleFileSelect(event)">
+            <div class="file-upload-icon">📄</div>
+            <div class="file-upload-text" data-i18n="file_upload_text"></div>
+            <div class="file-upload-hint" data-i18n="file_upload_hint"></div>
+          </div>
+          <div class="file-preview" id="filePreview" style="display:none;">
+            <span class="file-preview-icon">📄</span>
+            <span class="file-preview-name" id="filePreviewName"></span>
+            <button class="file-preview-remove" onclick="removeFile()" title="Remove">✕</button>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeModal()" data-i18n="btn_cancel"></button>
+        <button class="btn btn-primary" onclick="saveTapal()" data-i18n="btn_save"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PDF VIEWER MODAL -->
+  <div class="modal-overlay" id="pdfModalOverlay">
+    <div class="pdf-modal">
+      <div class="pdf-modal-header">
+        <div class="pdf-modal-info">
+          <div class="pdf-modal-title" id="pdfModalTitle">Document Viewer</div>
+          <div class="pdf-modal-sub" id="pdfModalSub"></div>
+        </div>
+        <div class="pdf-toolbar">
+          <button id="pdfDownloadBtn" onclick="downloadPdf()">⬇ <span data-i18n="btn_download"></span></button>
+          <button onclick="closePdfModal()">✕ <span data-i18n="btn_close"></span></button>
+        </div>
+      </div>
+      <div class="pdf-viewer" id="pdfViewerContent"></div>
+    </div>
+  </div>
+
+  <!-- CSV VIEWER MODAL -->
+  <div class="modal-overlay" id="csvViewerOverlay" style="z-index:1200;align-items:flex-start;padding:24px 16px;overflow-y:auto;">
+    <div style="background:var(--surface);border-radius:var(--radius);width:100%;max-width:1200px;margin:auto;display:flex;flex-direction:column;box-shadow:var(--shadow-lg);overflow:hidden;min-height:300px;">
+      <!-- Header bar -->
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 22px;border-bottom:1.5px solid var(--border);background:linear-gradient(90deg,#eaf5da,#f2fae9);flex-shrink:0;flex-wrap:wrap;gap:10px;">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <span style="font-size:26px;">📊</span>
+          <div>
+            <div style="font-size:15px;font-weight:700;color:var(--text);">Export Preview</div>
+            <div style="font-size:12px;color:var(--text-3);margin-top:2px;">
+              <span id="csvRecordCount"></span>&nbsp;·&nbsp;<span id="csvExportDate"></span>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button onclick="downloadCSV()" class="btn btn-primary btn-sm">⬇ Download Excel</button>
+          <button onclick="closeCSVViewer()" class="btn btn-ghost btn-sm">✕ Close</button>
+        </div>
+      </div>
+      <!-- Scrollable table -->
+      <div style="overflow-x:auto;overflow-y:auto;max-height:72vh;">
+        <table style="width:100%;border-collapse:collapse;">
+          <thead id="csvThead"></thead>
+          <tbody id="csvTbody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- AUTH MODAL -->
+  <div class="modal-overlay" id="authModalOverlay">
+    <div class="auth-modal">
+      <div class="auth-modal-header">
+        <div class="auth-modal-icon">🔐</div>
+        <div class="auth-modal-title" data-i18n="auth_title"></div>
+        <div class="auth-modal-sub" data-i18n="auth_subtitle"></div>
+      </div>
+      <div class="auth-modal-body">
+        <div class="auth-error" id="authError"></div>
+        <div class="auth-success" id="authSuccess"></div>
+        <div class="form-group" style="margin-bottom:14px;">
+          <label data-i18n="auth_username"></label>
+          <input type="text" id="authUsername" data-i18n-ph="auth_username_ph" autocomplete="off">
+        </div>
+        <div class="form-group" style="margin-bottom:6px;">
+          <label data-i18n="auth_password"></label>
+          <input type="password" id="authPassword" data-i18n-ph="auth_password_ph"
+            onkeydown="if(event.key==='Enter')submitAuth()">
+        </div>
+      </div>
+      <div class="auth-modal-footer">
+        <button class="btn btn-ghost" style="flex:1" onclick="cancelAuth()" data-i18n="btn_cancel"></button>
+        <button class="btn btn-primary" style="flex:1" onclick="submitAuth()" data-i18n="btn_login"></button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+  <script>
+    // ═══════════════════════════════════════════════════════
+    // TRANSLATIONS
+    // ═══════════════════════════════════════════════════════
+    const translations = {
+      hi: {
+        nav_main: 'मुख्य मेनू', nav_dashboard: 'डैशबोर्ड', nav_tapal_list: 'तपाल सूची', nav_timeline: 'टाइमलाइन',
+        nav_actions: 'क्रियाएं', nav_export: 'निर्यात', nav_system: 'सिस्टम', nav_settings: 'सेटिंग्स', back: 'वापस',
+        btn_new_tapal: 'नया तपाल', btn_new_tapal_full: '+ नया तपाल', btn_export: '📥 CSV निर्यात',
+        btn_cancel: 'रद्द करें', btn_save: '✓ सहेजें', btn_add_tapal: '+ नया तपाल जोड़ें',
+        btn_show_all: 'सभी दिखाएं', btn_add: '+ जोड़ें', btn_download: 'डाउनलोड', btn_close: 'बंद करें', btn_view: '👁 देखें',
+        btn_login: '🔐 लॉगिन', btn_logout: '🚪 लॉगआउट',
+        filter_all_types: 'सभी प्रकार', filter_all_status: 'सभी स्थिति',
+        type_inward: '📥 आवक', type_outward: '📤 जावक',
+        status_pending: '⏳ लंबित', status_received: '✅ प्राप्त', status_sent: '📨 भेजा गया',
+        status_overdue: '🚨 अतिदेय', status_completed: '✔ पूर्ण',
+        lang_hindi: 'हिंदी', lang_english: 'अंग्रेजी', lang_tamil: 'तमिल', lang_bilingual: 'द्विभाषी',
+        select_choose: 'चुनें', search_placeholder: 'तपाल खोजें...',
+        stat_total_hi: 'कुल तपाल', stat_inward_hi: 'आवक', stat_outward_hi: 'जावक', stat_pending_hi: 'लंबित',
+        stat_completed_hi: 'पूर्ण', stat_completed_trend: 'पूर्ण',
+        th_sno: 'क्र.सं.', th_tapal_no: 'तपाल सं.', th_date: 'दिनांक', th_type: 'प्रकार',
+        th_from_to: 'प्रेषक / प्राप्तकर्ता', th_marked_to: 'अधिकारी', th_subject: 'विषय',
+        th_language: 'भाषा', th_status: 'स्थिति', th_actions: 'कार्रवाई', th_verified: "सत्यापित", th_attached_file: 'संलग्न फ़ाइल',
+        th_reminder_date: 'अनुस्मारक तिथि', th_days_left: 'दिन शेष',
+        modal_title_hi: '🌿 नया तपाल जोड़ें', modal_title_en: 'नई प्रविष्टि',
+        lbl_tapal_no: 'तपाल सं. *', lbl_received_date: 'प्राप्ति दिनांक *', lbl_type: 'प्रकार *',
+        lbl_language: 'भाषा *', lbl_from_to: 'प्रेषक / प्राप्तकर्ता ', lbl_tapal_type: 'तपाल प्रकार *',
+        lbl_marked_to: 'अधिकारी / कर्मचारी *', lbl_firm_name: 'फर्म / व्यक्ति का नाम',
+        lbl_factory: 'कारखाना *', lbl_city: 'शहर / नगर', lbl_subject: 'विषय *',
+        lbl_status: 'स्थिति', lbl_reminder: 'अनुस्मारक तिथि', lbl_remarks: 'टिप्पणी',
+        lbl_attached_file: 'संलग्न फ़ाइल (PDF)', lbl_marked_to_officers: 'अधिकारी सूची',
+        lbl_cities: 'शहर सूची', lbl_tapal_types_master: 'तपाल प्रकार सूची', lbl_factory_master: 'कारखाना मास्टर',
+        ph_tapal_no: 'जैसे: IN/2024/001', ph_from_to: 'कार्यालय का नाम', ph_subject: 'पत्र का विषय',
+        ph_remarks: 'अतिरिक्त जानकारी', ph_add_officer: 'नए अधिकारी का नाम', ph_add_city: 'नया शहर',
+        ph_add_tapal_type: 'नया प्रकार', ph_add_factory: 'नया कारखाना', ph_factory_search: 'कारखाना खोजें या चुनें...',
+        file_upload_text: 'PDF फ़ाइल चुनें या यहाँ छोड़ें', file_upload_hint: 'केवल PDF • अधिकतम 10MB',
+        empty_title: 'कोई तपाल नहीं मिला', empty_sub: 'आपके फ़िल्टर से मेल खाने वाला कोई तपाल नहीं मिला।',
+        empty_timeline_title: 'कोई तपाल नहीं', empty_timeline_sub: 'टाइमलाइन में दिखाने के लिए कोई तपाल नहीं है।',
+        timeline_subtitle: 'सभी आवक और जावक तपाल का पूरा इतिहास',
+        alert_overdue: (n) => `${n} तपाल अतिदेय — तत्काल कार्रवाई आवश्यक है`,
+        confirm_delete: 'क्या आप इस तपाल को हटाना चाहते हैं?',
+        alert_no_export: 'निर्यात के लिए कोई डेटा नहीं है', alert_fill_fields: 'कृपया सभी अनिवार्य फ़ील्ड भरें (*)',
+        alert_pdf_only: 'केवल PDF फ़ाइल अनुमत है', alert_pdf_size: 'फ़ाइल आकार 10MB से अधिक नहीं होना चाहिए',
+        tip_toggle: 'स्थिति बदलें', tip_delete: 'हटाएं',
+        footer_text: 'एवीएनएल शिक्षण संस्थान', footer_storage: 'डेटा इस ब्राउज़र में सुरक्षित है',
+        sidebar_color: 'साइडबार रंग', background_color: 'पृष्ठभूमि रंग', header_color: 'हेडर रंग',
+        settings_title: 'सेटिंग्स', settings_subtitle: 'अपनी प्राथमिकताओं का प्रबंधन करें',
+        office_profile: 'कार्यालय प्रोफ़ाइल', office_profile_desc: 'कार्यालय विवरण देखें',
+        personalization: 'वैयक्तिकरण', personalization_desc: 'अनुभव को अनुकूलित करें',
+        reports_monitoring: 'रिपोर्ट एवं निगरानी', reports_monitoring_desc: 'रिपोर्ट देखें',
+        master_data: 'मास्टर डेटा', master_data_desc: 'अधिकारी, शहर, प्रकार, कारखाना प्रबंधित करें',
+        office_name: 'कार्यालय का नाम', ministry_department: 'मंत्रालय / विभाग', office_code: 'कार्यालय कोड',
+        office_address: 'कार्यालय का पता', phone_no: 'फोन नंबर', fax_no: 'फैक्स नंबर', email: 'ई-मेल', website: 'वेबसाइट',
+        monthly_report: 'मासिक तपाल रिपोर्ट', pending_report: 'लंबित पत्र रिपोर्ट',
+        select_period: 'अवधि चुनें:', all_months: 'सभी माह', all_years: 'सभी वर्ष', pending: 'लंबित', completed: 'पूर्ण',
+        office_name_value: 'एवीएनएल शिक्षण संस्थान', ministry_value: 'रक्षा मंत्रालय',
+        address_value: 'एवीएनएल एस्टेट, आवडी, चेन्नई - 600054',
+        no_document: 'कोई दस्तावेज़ संलग्न नहीं है',
+        rc_total_pending: 'कुल लंबित', rc_inward_pending: 'आवक लंबित', rc_outward_pending: 'जावक लंबित', rc_overdue: 'अतिदेय',
+        all_pending_letters: 'सभी लंबित पत्र', pending_inward_letters: 'लंबित आवक पत्र',
+        pending_outward_letters: 'लंबित जावक पत्र', past_reminder_date: 'स्मारक तिथि बीत चुकी',
+        today_label: 'आज', days_left_label: (n) => n > 0 ? `${n} दिन शेष` : `${Math.abs(n)} दिन देरी`,
+        mo_total: 'कुल तपाल', mo_inward: 'आवक', mo_outward: 'जावक', mo_pending: 'लंबित', mo_completed: 'पूर्ण',
+        officer_staff_label: 'अधिकारी / कर्मचारी',
+        months: ['जनवरी', 'फरवरी', 'मार्च', 'अप्रैल', 'मई', 'जून', 'जुलाई', 'अगस्त', 'सितंबर', 'अक्टूबर', 'नवंबर', 'दिसंबर'],
+        auth_title: 'लॉगिन आवश्यक', auth_subtitle: 'इस कार्य के लिए प्रमाणीकरण आवश्यक है',
+        auth_username: 'उपयोगकर्ता नाम', auth_password: 'पासवर्ड',
+        auth_username_ph: 'उपयोगकर्ता नाम दर्ज करें', auth_password_ph: 'पासवर्ड दर्ज करें',
+        auth_error: 'अमान्य उपयोगकर्ता नाम या पासवर्ड', auth_success: 'सफल प्रमाणीकरण',
+        label_verified: 'सत्यापित', label_not_verified: 'असत्यापित'
+      },
+      en: {
+        nav_main: 'Main Menu', nav_dashboard: 'Dashboard', nav_tapal_list: 'Tapal List', nav_timeline: 'Timeline',
+        nav_actions: 'Actions', nav_export: 'Export', nav_system: 'System', nav_settings: 'Settings', back: 'Back',
+        btn_new_tapal: 'New Tapal', btn_new_tapal_full: '+ New Tapal', btn_export: '📥 Export CSV',
+        btn_cancel: 'Cancel', btn_save: '✓ Save', btn_add_tapal: '+ Add New Tapal',
+        btn_show_all: 'Show All', btn_add: '+ Add', btn_download: 'Download', btn_close: 'Close', btn_view: '👁 View',
+        btn_login: '🔐 Login', btn_logout: '🚪 Logout',
+        filter_all_types: 'All Types', filter_all_status: 'All Status',
+        type_inward: '📥 Inward', type_outward: '📤 Outward',
+        status_pending: '⏳ Pending', status_received: '✅ Received', status_sent: '📨 Sent',
+        status_overdue: '🚨 Overdue', status_completed: '✔ Completed',
+        lang_hindi: 'Hindi', lang_english: 'English', lang_tamil: 'Tamil', lang_bilingual: 'Bilingual',
+        select_choose: 'Select', search_placeholder: 'Search tapals...',
+        stat_total_hi: 'Total Tapals', stat_inward_hi: 'Inward', stat_outward_hi: 'Outward', stat_pending_hi: 'Pending',
+        stat_completed_hi: 'Completed', stat_completed_trend: 'Done',
+        th_sno: 'S.No.', th_tapal_no: 'Tapal No.', th_date: 'Date', th_type: 'Type',
+        th_from_to: 'From / To', th_marked_to: 'Marked To Officer', th_subject: 'Subject',
+        th_language: 'Language', th_status: 'Status', th_actions: 'Actions', th_verified: "Verified", th_attached_file: 'Attached File',
+        th_reminder_date: 'Reminder Date', th_days_left: 'Days Left',
+        modal_title_hi: '🌿 Add New Tapal', modal_title_en: 'New Entry',
+        lbl_tapal_no: 'Tapal No. *', lbl_received_date: 'Received Date *', lbl_type: 'Type *',
+        lbl_language: 'Language *', lbl_from_to: 'From / To ', lbl_tapal_type: 'Tapal Type *',
+        lbl_marked_to: 'Marked to Officer/Staff *', lbl_firm_name: "Firm's / Person's Name",
+        lbl_factory: 'Factory*', lbl_city: 'City / Town', lbl_subject: 'Subject *',
+        lbl_status: 'Status', lbl_reminder: 'Reminder Date', lbl_remarks: 'Remarks',
+        lbl_attached_file: 'Attached File (PDF)', lbl_marked_to_officers: 'Officers List',
+        lbl_cities: 'Cities List', lbl_tapal_types_master: 'Tapal Types List', lbl_factory_master: 'Factory Master',
+        ph_tapal_no: 'e.g. IN/2024/001', ph_from_to: 'Office name', ph_subject: 'Letter subject',
+        ph_remarks: 'Additional info', ph_add_officer: 'New officer name', ph_add_city: 'New city',
+        ph_add_tapal_type: 'New tapal type', ph_add_factory: 'New factory', ph_factory_search: 'Search or select factory...',
+        file_upload_text: 'Click to choose PDF or drag & drop', file_upload_hint: 'PDF only • Max 10MB',
+        empty_title: 'No tapals found', empty_sub: 'No tapals match your current filters.',
+        empty_timeline_title: 'No tapals', empty_timeline_sub: 'No tapals to display in timeline.',
+        timeline_subtitle: 'Complete history of all inward and outward tapals',
+        alert_overdue: (n) => `${n} tapal(s) are overdue — immediate action required`,
+        confirm_delete: 'Are you sure you want to delete this tapal?',
+        alert_no_export: 'No data to export', alert_fill_fields: 'Please fill all required fields (*)',
+        alert_pdf_only: 'Only PDF files are allowed', alert_pdf_size: 'File size must not exceed 10MB',
+        tip_toggle: 'Change Status', tip_delete: 'Delete',
+        footer_text: 'AVNL INSTITUTE OF LEARNING', footer_storage: 'Data saved in this browser',
+        sidebar_color: 'Sidebar Color', background_color: 'Background Color', header_color: 'Header Color',
+        settings_title: 'Settings', settings_subtitle: 'Manage your preferences and configurations',
+        office_profile: 'Office Profile', office_profile_desc: 'View and manage office details',
+        personalization: 'Personalization', personalization_desc: 'Customize your experience',
+        reports_monitoring: 'Reports & Monitoring', reports_monitoring_desc: 'View reports and monitor activities',
+        master_data: 'Master Data', master_data_desc: 'Manage officers, cities, types, factory',
+        office_name: 'Office Name', ministry_department: 'Ministry / Department', office_code: 'Office Code',
+        office_address: 'Office Address', phone_no: 'Phone No.', fax_no: 'FAX No.', email: 'E-mail', website: 'Website',
+        monthly_report: 'Monthly Tapal Report', pending_report: 'Pending Letter Report',
+        select_period: 'Select Period:', all_months: 'All Months', all_years: 'All Years', pending: 'Pending', completed: 'Completed',
+        office_name_value: 'AVNL Institute of Learning', ministry_value: 'Ministry of Defence',
+        address_value: 'AVNL ESTATE, AVADI, CHENNAI - 600054',
+        no_document: 'No document attached.',
+        rc_total_pending: 'Total Pending', rc_inward_pending: 'Inward Tapals', rc_outward_pending: 'Outward Tapals', rc_overdue: 'Overdue',
+        all_pending_letters: 'All pending letters', pending_inward_letters: 'Pending Inward letters',
+        pending_outward_letters: 'Pending Outward letters', past_reminder_date: 'Past reminder date',
+        today_label: 'Today', days_left_label: (n) => n > 0 ? `${n} days` : n === 0 ? 'Today' : `${Math.abs(n)} days late`,
+        mo_total: 'Total Tapals', mo_inward: 'Inward', mo_outward: 'Outward', mo_pending: 'Pending', mo_completed: 'Completed',
+        officer_staff_label: 'OFFICER / STAFF',
+        months: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+        auth_title: 'Login Required', auth_subtitle: 'Authentication required for this action',
+        auth_username: 'Username', auth_password: 'Password',
+        auth_username_ph: 'Enter username', auth_password_ph: 'Enter password',
+        auth_error: 'Invalid Username or Password', auth_success: 'Authentication Successful',
+        label_verified: 'Verified', label_not_verified: 'Not Verified'
+      },
+      ta: {
+        nav_main: 'முக்கிய மெனு', nav_dashboard: 'டாஷ்போர்டு', nav_tapal_list: 'தபால் பட்டியல்', nav_timeline: 'காலவரிசை',
+        nav_actions: 'செயல்கள்', nav_export: 'ஏற்றுமதி', nav_system: 'அமைப்பு', nav_settings: 'அமைப்புகள்', back: 'திரும்பு',
+        btn_new_tapal: 'புதிய தபால்', btn_new_tapal_full: '+ புதிய தபால்', btn_export: '📥 CSV ஏற்றுமதி',
+        btn_cancel: 'ரத்துசெய்', btn_save: '✓ சேமி', btn_add_tapal: '+ புதிய தபால் சேர்',
+        btn_show_all: 'அனைத்தும் காட்டு', btn_add: '+ சேர்', btn_download: 'பதிவிறக்கு', btn_close: 'மூடு', btn_view: '👁 காட்டு',
+        btn_login: '🔐 உள்நுழை', btn_logout: '🚪 வெளியேறு',
+        filter_all_types: 'அனைத்து வகைகள்', filter_all_status: 'அனைத்து நிலை',
+        type_inward: '📥 உள்வரும்', type_outward: '📤 வெளியே செல்லும்',
+        status_pending: '⏳ நிலுவை', status_received: '✅ பெறப்பட்டது', status_sent: '📨 அனுப்பப்பட்டது',
+        status_overdue: '🚨 காலதாமதம்', status_completed: '✔ முடிக்கப்பட்டது',
+        lang_hindi: 'இந்தி', lang_english: 'ஆங்கிலம்', lang_tamil: 'தமிழ்', lang_bilingual: 'இருமொழி',
+        select_choose: 'தேர்வுசெய்', search_placeholder: 'தபால் தேடு...',
+        stat_total_hi: 'மொத்த தபால்கள்', stat_inward_hi: 'உள்வரும்', stat_outward_hi: 'வெளியே செல்லும்', stat_pending_hi: 'நிலுவை',
+        stat_completed_hi: 'முடிக்கப்பட்டது', stat_completed_trend: 'முடிந்தது',
+        th_sno: 'வ.எண்.', th_tapal_no: 'தபால் எண்.', th_date: 'தேதி', th_type: 'வகை',
+        th_from_to: 'இருந்து / வரை', th_marked_to: 'அதிகாரி', th_subject: 'விஷயம்',
+        th_language: 'மொழி', th_status: 'நிலை', th_actions: 'செயல்கள்', th_verified: "சரிபார்க்கப்பட்டது", th_attached_file: 'இணைக்கப்பட்ட கோப்பு',
+        th_reminder_date: 'நினைவூட்டல் தேதி', th_days_left: 'மீதமுள்ள நாட்கள்',
+        modal_title_hi: '🌿 புதிய தபால் சேர்', modal_title_en: 'புதிய பதிவு',
+        lbl_tapal_no: 'தபால் எண். *', lbl_received_date: 'பெறப்பட்ட தேதி *', lbl_type: 'வகை *',
+        lbl_language: 'மொழி *', lbl_from_to: 'இருந்து / வரை ', lbl_tapal_type: 'தபால் வகை *',
+        lbl_marked_to: 'அதிகாரி / ஊழியர் *', lbl_firm_name: 'நிறுவனம் / நபர் பெயர்',
+        lbl_factory: 'தொழிற்சாலை *', lbl_city: 'நகர் / ஊர்', lbl_subject: 'விஷயம் *',
+        lbl_status: 'நிலை', lbl_reminder: 'நினைவூட்டல் தேதி', lbl_remarks: 'குறிப்புகள்',
+        lbl_attached_file: 'இணைக்கப்பட்ட கோப்பு (PDF)', lbl_marked_to_officers: 'அதிகாரிகள் பட்டியல்',
+        lbl_cities: 'நகரங்கள் பட்டியல்', lbl_tapal_types_master: 'தபால் வகைகள் பட்டியல்', lbl_factory_master: 'தொழிற்சாலை மாஸ்டர்',
+        ph_tapal_no: 'எ.கா: IN/2024/001', ph_from_to: 'அலுவலகம் பெயர்', ph_subject: 'கடிதத்தின் விஷயம்',
+        ph_remarks: 'கூடுதல் தகவல்', ph_add_officer: 'புதிய அதிகாரி பெயர்', ph_add_city: 'புதிய நகர்',
+        ph_add_tapal_type: 'புதிய வகை', ph_add_factory: 'புதிய தொழிற்சாலை', ph_factory_search: 'தொழிற்சாலை தேடு...',
+        file_upload_text: 'PDF கோப்பை தேர்ந்தெடு அல்லது இங்கே இழு', file_upload_hint: 'PDF மட்டும் • அதிகபட்சம் 10MB',
+        empty_title: 'தபால் இல்லை', empty_sub: 'உங்கள் வடிகட்டிகளுடன் பொருந்தும் தபால் இல்லை.',
+        empty_timeline_title: 'தபால் இல்லை', empty_timeline_sub: 'காலவரிசையில் காட்ட தபால் இல்லை.',
+        timeline_subtitle: 'அனைத்து தபால்களின் முழு வரலாறு',
+        alert_overdue: (n) => `${n} தபால்(கள்) காலதாமதம் — உடனடி நடவடிக்கை தேவை`,
+        confirm_delete: 'இந்த தபாலை நீக்க விரும்புகிறீர்களா?',
+        alert_no_export: 'ஏற்றுமதிக்கு தரவு இல்லை', alert_fill_fields: 'அனைத்து கட்டாய புலங்களையும் நிரப்பவும் (*)',
+        alert_pdf_only: 'PDF கோப்புகள் மட்டுமே அனுமதிக்கப்படுகின்றன', alert_pdf_size: 'கோப்பு அளவு 10MB ஐ தாண்டக்கூடாது',
+        tip_toggle: 'நிலை மாற்று', tip_delete: 'நீக்கு',
+        footer_text: 'AVNL கற்றல் நிறுவனம்', footer_storage: 'தரவு இந்த உலாவியில் சேமிக்கப்பட்டுள்ளது',
+        sidebar_color: 'பக்கப்பட்டி நிறம்', background_color: 'பின்னணி நிறம்', header_color: 'தலைப்பு நிறம்',
+        settings_title: 'அமைப்புகள்', settings_subtitle: 'உங்கள் விருப்பங்களை நிர்வகிக்கவும்',
+        office_profile: 'அலுவலக சுயவிவரம்', office_profile_desc: 'அலுவலக விவரங்களை பார்க்கவும்',
+        personalization: 'தனிப்பயனாக்கம்', personalization_desc: 'உங்கள் அனுபவத்தை தனிப்பயனாக்கவும்',
+        reports_monitoring: 'அறிக்கைகள் மற்றும் கண்காணிப்பு', reports_monitoring_desc: 'அறிக்கைகளை பார்க்கவும்',
+        master_data: 'மாஸ்டர் டேட்டா', master_data_desc: 'அதிகாரிகள், நகரங்கள், வகைகள், தொழிற்சாலை',
+        office_name: 'அலுவலக பெயர்', ministry_department: 'அமைச்சகம் / துறை', office_code: 'அலுவலக குறியீடு',
+        office_address: 'அலுவலக முகவரி', phone_no: 'தொலைபேசி எண்.', fax_no: 'தொலைநகல் எண்.', email: 'மின்னஞ்சல்', website: 'இணையதளம்',
+        monthly_report: 'மாதாந்திர தபால் அறிக்கை', pending_report: 'நிலுவை கடிதம் அறிக்கை',
+        select_period: 'காலம் தேர்வுசெய்:', all_months: 'அனைத்து மாதங்கள்', all_years: 'அனைத்து ஆண்டுகள்',
+        pending: 'நிலுவை', completed: 'முடிக்கப்பட்டது',
+        office_name_value: 'AVNL கற்றல் நிறுவனம்', ministry_value: 'பாதுகாப்பு அமைச்சகம்',
+        address_value: 'AVNL ESTATE, ஆவடி, சென்னை - 600054',
+        no_document: 'ஆவணம் இணைக்கப்படவில்லை.',
+        rc_total_pending: 'மொத்த நிலுவை', rc_inward_pending: 'உள்வரும் தபால்கள்', rc_outward_pending: 'வெளியே செல்லும் தபால்கள்', rc_overdue: 'காலதாமதம்',
+        all_pending_letters: 'அனைத்து நிலுவை கடிதங்கள்', pending_inward_letters: 'நிலுவை உள்வரும் கடிதங்கள்',
+        pending_outward_letters: 'நிலுவை வெளியே செல்லும் கடிதங்கள்', past_reminder_date: 'நினைவூட்டல் தேதி கடந்தது',
+        today_label: 'இன்று', days_left_label: (n) => n > 0 ? `${n} நாட்கள்` : n === 0 ? 'இன்று' : `${Math.abs(n)} நாட்கள் தாமதம்`,
+        mo_total: 'மொத்த தபால்கள்', mo_inward: 'உள்வரும்', mo_outward: 'வெளியே செல்லும்', mo_pending: 'நிலுவை', mo_completed: 'முடிக்கப்பட்டது',
+        officer_staff_label: 'அதிகாரி / ஊழியர்',
+        months: ['ஜனவரி', 'பிப்ரவரி', 'மார்ச்', 'ஏப்ரல்', 'மே', 'ஜூன்', 'ஜூலை', 'ஆகஸ்ட்', 'செப்டம்பர்', 'அக்டோபர்', 'நவம்பர்', 'டிசம்பர்'],
+        auth_title: 'உள்நுழைவு அவசியம்', auth_subtitle: 'இந்த செயலுக்கு அங்கீகாரம் தேவை',
+        auth_username: 'பயனர் பெயர்', auth_password: 'கடவுச்சொல்',
+        auth_username_ph: 'பயனர் பெயர் உள்ளிடவும்', auth_password_ph: 'கடவுச்சொல் உள்ளிடவும்',
+        auth_error: 'தவறான பயனர் பெயர் அல்லது கடவுச்சொல்', auth_success: 'அங்கீகாரம் வெற்றிகரமாக முடிந்தது',
+        label_verified: 'சரிபார்க்கப்பட்டது', label_not_verified: 'சரிபார்க்கப்படவில்லை'
+      }
+    };
+
+    const statusLabels = {
+      hi: { 'लंबित': 'लंबित', 'प्राप्त': 'प्राप्त', 'भेजा गया': 'भेजा गया', 'अतिदेय': 'अतिदेय', 'पूर्ण': 'पूर्ण' },
+      en: { 'लंबित': 'Pending', 'प्राप्त': 'Received', 'भेजा गया': 'Sent', 'अतिदेय': 'Overdue', 'पूर्ण': 'Completed' },
+      ta: { 'लंबित': 'நிலுவை', 'प्राप्त': 'பெறப்பட்டது', 'भेजा गया': 'அனுப்பப்பட்டது', 'अतिदेय': 'காலதாமதம்', 'पूर्ण': 'முடிக்கப்பட்டது' }
+    };
+    // Normalise DB status values (stored as English OR Hindi) → canonical Hindi key
+    const statusNormalize = {
+      'Pending':'लंबित','Received':'प्राप्त','Sent':'भेजा गया','Overdue':'अतिदेय','Completed':'पूर्ण',
+      'लंबित':'लंबित','प्राप्त':'प्राप्त','भेजा गया':'भेजा गया','अतिदेय':'अतिदेय','पूर्ण':'पूर्ण'
+    };
+    const typeLabels = {
+      hi: { 'आवक': 'आवक', 'जावक': 'जावक' },
+      en: { 'आवक': 'Inward', 'जावक': 'Outward' },
+      ta: { 'आवक': 'உள்வரும்', 'जावक': 'வெளியே செல்லும்' }
+    };
+    const langLabels = {
+      hi: { 'हिंदी': 'हिंदी', 'अंग्रेजी': 'अंग्रेजी', 'तमिल': 'तमिल', 'द्विभाषी': 'द्विभाषी' },
+      en: { 'हिंदी': 'Hindi', 'अंग्रेजी': 'English', 'तमिल': 'Tamil', 'द्विभाषी': 'Bilingual' },
+      ta: { 'हिंदी': 'இந்தி', 'अंग्रेजी': 'ஆங்கிலம்', 'तमिल': 'தமிழ்', 'द्विभाषी': 'இருமொழி' }
+    };
+
+    // CHART CACHE
+    const chartInstances = {};
+    function destroyChart(id) { if (chartInstances[id]) { chartInstances[id].destroy(); delete chartInstances[id]; } }
+
+    // DEFAULT MASTER DATA
+    const DEFAULT_OFFICERS = ['DURGESH NANDAN VERMA', 'M SAKTHIVEL MURUGAN', 'SMT.SAVEETHA', 'SHRI. T.H.V.V SWAMY', 'SHRI.K.RAVI', 'SHRI. RADHAKRISHNA CH', 'MS.P.BANU', 'R.MANOJ KUMAR', 'R.PAVITHRA', 'NIVEDITA MOORTHY', 'R.KRISHNAN', 'M.ANISH RAJ'];
+    const DEFAULT_CITIES = ['Avadi', 'Mumbai', 'Delhi', 'Bengaluru', 'Hyderabad', 'Chennai', 'Kolkata', 'Ahmedabad', 'Pune', 'Jaipur', 'Lucknow', 'Kanpur', 'Nagpur', 'Indore', 'Bhopal', 'Patna', 'Surat', 'Visakhapatnam', 'Vadodara', 'Coimbatore', 'Kochi'];
+    const DEFAULT_TAPAL_TYPES = ['BROCHURE', 'CHEQUE SLIP', 'COMNET', 'E-MAIL', 'FAX', 'FILE', 'GREETINGS', 'HVF COMNET', 'LETTER', 'MAGAZINE', 'NEWS', 'QUOTATION'];
+    const DEFAULT_FACTORIES = ['AFK', 'AO(AUDIT)HVF', 'AO(CFA)', 'AO(EFA)', 'AO(HAPP)', 'AO(HVF)', 'AO(OCF)', 'AO(OFT)', 'ARDE', 'AVHQ', 'AVNL IOLAV', 'AVNL KHADKI', 'AVNL NDO', 'AVNL CO', 'AVNL IOLAM', 'AVNL IOLAV', 'AVNL IOLMK', 'CFA', 'COS', 'CQA(AVA)', 'CQA(AVL)', 'CQA(EFA)', 'CQA(FFE)', 'CQA(HV)', 'CQA(I)DD', 'CQA(ICV)', 'CSIR-SERC', 'CTI', 'CVRDE', 'D of A', 'DDP', 'DFUAV', 'DGE(TRG)', 'DGQA', 'DLA', 'DOOKOL', 'DOONDO', 'DQACV', 'DSC AVADI', 'DSC/HVF', 'DSC/OFT', 'EFA', 'EME (Trg)'];
+
+    function loadMasterData(key, defaults) {
+      const saved = localStorage.getItem('master_' + key);
+      if (saved) { try { return JSON.parse(saved); } catch (e) { } }
+      return [...defaults];
+    }
+    function saveMasterData(key, data) { localStorage.setItem('master_' + key, JSON.stringify(data)); }
+
+    let masterOfficers = loadMasterData('officers', DEFAULT_OFFICERS);
+    let masterCities = loadMasterData('cities', DEFAULT_CITIES);
+    let masterTapalTypes = loadMasterData('tapalTypes', DEFAULT_TAPAL_TYPES);
+    let masterFactories = loadMasterData('factories', DEFAULT_FACTORIES);
+
+    // STATE
+    let currentLang = localStorage.getItem('ri_lang') || 'en';
+    let tapals = []; let currentPdfData = null;
+
+    // AUTH STATE  (now backed by real API sessions)
+    let authSession = null;   // populated from /api/auth/me on load
+    let authUser    = null;   // full user object { id, username, fullName, role }
+    let pendingAuthCallback = null;
+
+    // TRANSLATION
+    function t(key) { return (translations[currentLang] && translations[currentLang][key] !== undefined) ? translations[currentLang][key] : ((translations.en && translations.en[key] !== undefined) ? translations.en[key] : key); }
+
+    function applyTranslations() {
+      const L = currentLang;
+      document.querySelectorAll('[data-i18n]').forEach(el => { const k = el.getAttribute('data-i18n'); const v = t(k); if (typeof v === 'string') el.textContent = v; });
+      document.querySelectorAll('[data-i18n-ph]').forEach(el => { const k = el.getAttribute('data-i18n-ph'); const v = t(k); if (typeof v === 'string') el.placeholder = v; });
+      document.querySelectorAll('[data-i18n-opt]').forEach(el => { const k = el.getAttribute('data-i18n-opt'); const v = t(k); if (typeof v === 'string') el.textContent = v; });
+      const si = document.getElementById('searchInput'); if (si) si.placeholder = t('search_placeholder');
+      document.getElementById('langHi').classList.toggle('active', L === 'hi');
+      document.getElementById('langEn').classList.toggle('active', L === 'en');
+      document.getElementById('langTa').classList.toggle('active', L === 'ta');
+      document.documentElement.lang = L === 'ta' ? 'ta' : L === 'en' ? 'en' : 'hi';
+    }
+
+    function setLanguage(lang) {
+      currentLang = lang; localStorage.setItem('ri_lang', lang);
+      applyTranslations(); updateHeaderDate(); renderTable(); updateStats(); populateDropdowns();
+    }
+
+    // NAVIGATION
+    function showSection(section, el) {
+      ['dashboardSection', 'tapalSection', 'timelineSection', 'settingsSection'].forEach(id => {
+        const s = document.getElementById(id); if (s) s.style.display = 'none';
+      });
+      if (section === 'dashboard') document.getElementById('dashboardSection').style.display = 'block';
+      else if (section === 'list') { document.getElementById('tapalSection').style.display = 'block'; renderTable(); }
+      else if (section === 'timeline') { document.getElementById('timelineSection').style.display = 'block'; renderTimeline(); }
+      else if (section === 'settings') document.getElementById('settingsSection').style.display = 'block';
+      document.querySelectorAll('.nav-item').forEach(x => x.classList.remove('active'));
+      if (el) el.classList.add('active');
+      closeSidebar();
+    }
+
+    // DATES
+    function formatDate(d) {
+      if (!d) return '—';
+
+      const dt = new Date(d);
+
+      return dt.toLocaleDateString('en-IN', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      });
+    } function updateHeaderDate() { const locale = currentLang === 'ta' ? 'ta-IN' : currentLang === 'en' ? 'en-IN' : 'hi-IN'; document.getElementById('currentDate').textContent = new Date().toLocaleDateString(locale, { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' }); }
+    function setTodayDate() { document.getElementById('fDate').value = new Date().toISOString().split('T')[0]; }
+    function daysFromToday(d) {
+      if (!d) return null;
+
+      const rem = new Date(d);
+      if (isNaN(rem.getTime())) return null;
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      rem.setHours(0, 0, 0, 0);
+
+      return Math.floor((rem - today) / (1000 * 60 * 60 * 24));
+    }
+    // AUTH
+    function updateAuthUI() {
+      const lb  = document.getElementById('logoutBtn');
+      const uc  = document.getElementById('authUserChip');
+      const un  = document.getElementById('authUserName');
+      const hlb = document.getElementById('headerLoginBtn');
+      if (authSession) {
+        lb.classList.add('visible');
+        uc.classList.add('visible');
+        if (un) un.textContent = authUser ? (authUser.fullName || authUser.username) : authSession;
+        if (hlb) hlb.classList.add('hidden');
+      } else {
+        lb.classList.remove('visible');
+        uc.classList.remove('visible');
+        if (hlb) hlb.classList.remove('hidden');
+      }
+    }
+
+    function requireAuth(callback) {
+      if (authSession) { callback(); return; }
+      pendingAuthCallback = callback;
+      document.getElementById('authUsername').value = '';
+      document.getElementById('authPassword').value = '';
+      document.getElementById('authError').classList.remove('show');
+      document.getElementById('authSuccess').classList.remove('show');
+      document.getElementById('authModalOverlay').classList.add('open');
+      setTimeout(() => document.getElementById('authUsername').focus(), 100);
+    }
+
+    async function submitAuth() {
+      const user = document.getElementById('authUsername').value.trim();
+      const pass = document.getElementById('authPassword').value;
+      const errEl = document.getElementById('authError');
+      const sucEl = document.getElementById('authSuccess');
+      const loginBtn = document.querySelector('#authModalOverlay .btn-primary');
+      errEl.classList.remove('show'); sucEl.classList.remove('show');
+      if (!user || !pass) {
+        errEl.textContent = t('auth_error'); errEl.classList.add('show'); return;
+      }
+      if (loginBtn) loginBtn.disabled = true;
+      try {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'same-origin',
+          body: JSON.stringify({ username: user, password: pass })
+        });
+        const data = await res.json();
+        if (data.success) {
+          authSession = data.user.username;
+          authUser    = data.user;
+          sucEl.textContent = t('auth_success'); sucEl.classList.add('show');
+          updateAuthUI();
+          setTimeout(() => {
+            document.getElementById('authModalOverlay').classList.remove('open');
+            if (pendingAuthCallback) { const cb = pendingAuthCallback; pendingAuthCallback = null; cb(); }
+          }, 700);
+        } else {
+          errEl.textContent = data.error || t('auth_error'); errEl.classList.add('show');
+          document.getElementById('authPassword').value = '';
+          document.getElementById('authPassword').focus();
+        }
+      } catch (err) {
+        errEl.textContent = 'Server error. Please try again.'; errEl.classList.add('show');
+      } finally {
+        if (loginBtn) loginBtn.disabled = false;
+      }
+    }
+
+    function cancelAuth() {
+      document.getElementById('authModalOverlay').classList.remove('open');
+      pendingAuthCallback = null;
+    }
+
+    async function doLogout() {
+      try {
+        await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' });
+      } catch(e) { /* ignore */ }
+      authSession = null; authUser = null; updateAuthUI();
+    }
+
+    // STATS
+    function updateStats() {
+      document.getElementById('statTotal').textContent = tapals.length;
+
+      document.getElementById('statInward').textContent =
+        tapals.filter(r => r.type === 'आवक').length;
+
+      document.getElementById('statOutward').textContent =
+        tapals.filter(r => r.type === 'जावक').length;
+
+      document.getElementById('statPending').textContent =
+        tapals.filter(r => r.status === 'Pending').length;
+
+      document.getElementById('statCompleted').textContent =
+        tapals.filter(r => r.status === 'Completed').length;
+      const overdue = tapals.filter(r => r.status === 'Overdue');
+      const banner = document.getElementById('overdueAlert');
+      if (overdue.length > 0) { banner.classList.add('show'); document.getElementById('overdueText').textContent = t('alert_overdue')(overdue.length); }
+      else banner.classList.remove('show');
+    }
+
+    // FILTERING
+    function filtered() {
+      const q = document.getElementById('searchInput').value.toLowerCase();
+      const type = document.getElementById('filterType').value;
+      const stat = document.getElementById('filterStatus').value;
+      const fDate = document.getElementById('filterDate').value;
+      return tapals.filter(rec => {
+        const matchQ = !q || [rec.tapalNo, rec.factory, rec.subject, rec.remarks, rec.markedTo, rec.fromTo || ''].join(' ').toLowerCase().includes(q);
+        const matchT = !type || rec.type === type;
+        const matchS = !stat || rec.status === stat;
+        const matchD = !fDate || rec.date >= fDate;
+        return matchQ && matchT && matchS && matchD;
+      });
+    }
+    function showAllTapals() { document.getElementById('filterDate').value = ''; document.getElementById('filterType').value = ''; document.getElementById('filterStatus').value = ''; renderTable(); }
+
+    // STATUS BADGE
+    function statusBadge(s) {
+      const cssMap = {
+        'लंबित': 'badge-pending', 'प्राप्त': 'badge-received',
+        'भेजा गया': 'badge-received', 'अतिदेय': 'badge-overdue', 'पूर्ण': 'badge-completed'
+      };
+      const normKey = statusNormalize[s] || s;
+      const label = (statusLabels[currentLang] || statusLabels.en)[normKey] || s;
+      return `<span class="badge ${cssMap[normKey] || ''}">${label}</span>`;
+    }
+
+    // TABLE
+    function renderTable() {
+      const data = filtered();
+      const tbody = document.getElementById('tapalTableBody');
+      const empty = document.getElementById('emptyState');
+      if (data.length === 0) { tbody.innerHTML = ''; empty.style.display = 'block'; updateStats(); return; }
+      empty.style.display = 'none';
+      const officerLabel = t('officer_staff_label');
+      tbody.innerHTML = data.map((rec, i) => {
+        const typeLabel = (typeLabels[currentLang] || typeLabels.en)[rec.type] || rec.type;
+        const langLabel = (langLabels[currentLang] || langLabels.en)[rec.lang] || rec.lang || '—';
+        let attachCell = '<span style="color:var(--text-3);font-size:12px;">—</span>';
+        if (rec.attachment && rec.attachment.fileName) {
+          attachCell = `<div class="attach-cell"><span class="attach-icon">📄</span><span class="attach-name" title="${rec.attachment.fileName}">${rec.attachment.fileName}</span><button class="attach-view-btn" onclick="viewDocument('${rec.id}')">${t('btn_view')}</button></div>`;
+        }
+        return `<tr>
+      <td>${i + 1}</td>
+      <td class="cell-tapal-no">${rec.tapalNo}</td>
+      <td>${formatDate(rec.date)}</td>
+      <td><span class="badge ${rec.type === 'आवक' ? 'badge-inward' : 'badge-outward'}">${typeLabel}</span></td>
+      <td>${rec.fromTo || '—'}</td>
+      <td><div class="marked-to-cell"><span class="marked-to-label">${officerLabel}</span><span class="marked-to-name">${rec.markedTo || '—'}</span></div></td>
+      <td>${langLabel}</td>
+      <td>${statusBadge(rec.status)}</td>
+      <td>${attachCell}</td>
+      <td>
+    ${rec.verified
+            ? `<span class="verified-badge">✅ ${t('label_verified')}</span>`
+            : `<span class="badge badge-pending">• ${t('label_not_verified')}</span>`
+          }
+</td>
+      <td><div class="row-actions">
+        <button class="action-btn btn-edit" data-tip="Edit" onclick="editTapal('${rec.id}')">✏️</button>
+        <button class="action-btn btn-toggle"
+        onclick="requireAuth(()=>verifyTapal('${rec.id}'))"
+        data-tip="${rec.verified ? 'Unverify' : 'Verify'}"> 
+    ${rec.verified ? '✅' : '❌'}
+</button>
+        <button class="action-btn btn-toggle" data-tip="${t('tip_toggle')}" onclick="requireAuth(()=>toggleStatus('${rec.id}'))">↻</button>
+        <button class="action-btn btn-delete" data-tip="${t('tip_delete')}" onclick="requireAuth(()=>deleteTapal('${rec.id}'))">🗑</button>
+      </div></td>
+    </tr>`;
+      }).join('');
+      updateStats();
+    }
+
+    // TIMELINE
+    function renderTimeline() {
+      const container = document.getElementById('timelineContent');
+      if (!tapals.length) { container.innerHTML = '<div class="timeline-line"></div>'; document.getElementById('timelineEmpty').style.display = 'block'; return; }
+      document.getElementById('timelineEmpty').style.display = 'none';
+      const sorted = [...tapals].sort((a, b) => new Date(b.date) - new Date(a.date));
+      const labels = {
+        tapalNo: currentLang === 'ta' ? 'தபால் எண்.' : currentLang === 'en' ? 'Tapal No.' : 'तपाल सं.',
+        subject: currentLang === 'ta' ? 'விஷயம்' : currentLang === 'en' ? 'Subject' : 'विषय',
+        factory: currentLang === 'ta' ? 'தொழிற்சாலை' : currentLang === 'en' ? 'Factory' : 'कारखाना',
+        markedTo: currentLang === 'ta' ? 'அதிகாரிக்கு' : currentLang === 'en' ? 'Marked To' : 'चिह्नित को',
+        fromTo: currentLang === 'ta' ? 'இருந்து / வரை' : currentLang === 'en' ? 'From / To' : 'प्रेषक / प्राप्तकर्ता',
+        lang: currentLang === 'ta' ? 'மொழி' : currentLang === 'en' ? 'Language' : 'भाषा',
+        status: currentLang === 'ta' ? 'நிலை' : currentLang === 'en' ? 'Status' : 'स्थिति',
+        reminder: currentLang === 'ta' ? 'நினைவூட்டல் தேதி' : currentLang === 'en' ? 'Reminder Date' : 'अनुस्मारक तिथि',
+        remarks: currentLang === 'ta' ? 'குறிப்புகள்' : currentLang === 'en' ? 'Remarks' : 'टिप्पणी'
+      };
+      let html = '<div class="timeline-line"></div>';
+      sorted.forEach(rec => {
+        const isInward = rec.type === 'आवक';
+        const typeLabel = (typeLabels[currentLang] || typeLabels.en)[rec.type] || rec.type;
+        const langLabel = (langLabels[currentLang] || langLabels.en)[rec.lang] || rec.lang || '—';
+        const statusLabel = (statusLabels[currentLang] || statusLabels.en)[rec.status] || rec.status;
+        const statusClass = { 'लंबित': 'badge-pending', 'प्राप्त': 'badge-received', 'भेजा गया': 'badge-sent', 'अतिदेय': 'badge-overdue', 'पूर्ण': 'badge-completed' }[rec.status] || '';
+        let reminderHtml = '—';
+        if (rec.reminder) {
+          const days = daysFromToday(rec.reminder); const rdisplay = formatDate(rec.reminder);
+          const dl = t('days_left_label');
+          let bc = 'upcoming', bt = '';
+          if (days === 0) { bc = 'today'; bt = t('today_label'); }
+          else if (days > 0) { bc = 'upcoming'; bt = typeof dl === 'function' ? dl(days) : `${days}d`; }
+          else { bc = 'overdue'; bt = typeof dl === 'function' ? dl(days) : `${Math.abs(days)}d late`; }
+          reminderHtml = `${rdisplay} <span class="reminder-badge ${bc}">${bt}</span>`;
+        }
+        const ct = rec.createdAt ? new Date(rec.createdAt).toLocaleTimeString(currentLang === 'ta' ? 'ta-IN' : currentLang === 'en' ? 'en-IN' : 'hi-IN', { hour: '2-digit', minute: '2-digit' }) : '—';
+        html += `<div class="timeline-card">
+      <div class="timeline-icon ${isInward ? 'inward' : 'outward'}">${isInward ? '📥' : '📤'}</div>
+      <div class="timeline-top">
+        <div class="timeline-date-block">
+          <div class="timeline-date">${formatDate(rec.date)}</div>
+          <div class="timeline-time">${ct}</div>
+          <div class="timeline-type-badge"><span class="badge ${isInward ? 'badge-inward' : 'badge-outward'}">${typeLabel}</span></div>
+        </div>
+        <button class="tl-view-btn" onclick="viewDocument('${rec.id}')">👁 ${t('btn_view').replace('👁 ', '')}</button>
+      </div>
+      <div class="timeline-body">
+        <div class="tl-field"><span class="tl-label">${labels.tapalNo}</span><span class="tl-value highlight">${rec.tapalNo || '—'}</span></div>
+        <div class="tl-field"><span class="tl-label">${labels.subject}</span><span class="tl-value">${rec.subject || '—'}</span></div>
+       <div class="tl-field"><span class="tl-label">${labels.factory}</span><span class="tl-value">${rec.factory || '—'}</span></div>
+        <div class="tl-field"><span class="tl-label">${labels.markedTo}</span><span class="tl-value highlight">${rec.markedTo || '—'}</span></div>
+        <div class="tl-field"><span class="tl-label">${labels.fromTo}</span><span class="tl-value">${rec.fromTo || '—'}</span></div>
+        <div class="tl-field"><span class="tl-label">${labels.lang}</span><span class="tl-value">${langLabel}</span></div>
+        <div class="tl-field"><span class="tl-label">${labels.status}</span><span class="tl-value"><span class="badge ${statusClass}">${statusLabel}</span></span></div>
+        <div class="tl-field"><span class="tl-label">${labels.reminder}</span><span class="tl-value">${reminderHtml}</span></div>
+        <div class="tl-field" style="grid-column:1/-1"><span class="tl-label">${labels.remarks}</span><span class="tl-value">${rec.remarks || '—'}</span></div>
+        <div class="tl-field">
+  <span class="tl-label">Attachment</span>
+  <span class="tl-value">
+    ${rec.attachmentName
+            ? `<button class="btn btn-sm"
+           onclick="viewAttachment(${rec.id})">
+           📄 ${rec.attachmentName}
+         </button>`
+            : '-'}
+  </span>
+</div>
+      </div>
+    </div>`;
+      });
+      container.innerHTML = html;
+    }
+    async function viewAttachment(id) {
+
+      const rec = tapals.find(x => x.id == id);
+
+      if (!rec || !rec.attachmentPath) {
+        alert('No attachment found');
+        return;
+      }
+
+      const win = window.open();
+
+      win.document.write(`
+    <iframe
+      src="${rec.attachmentPath}"
+      width="100%"
+      height="100%"
+      style="border:none;"
+    ></iframe>
+  `);
+
+    }
+
+    // FACTORY SEARCHABLE DROPDOWN
+    function populateFactoryDropdown() {
+      const list = document.getElementById('factoryDropdownList'); if (!list) return;
+      const q = (document.getElementById('fFactorySearch').value || '').toLowerCase();
+      const filtered = masterFactories.filter(f => f.toLowerCase().includes(q));
+      if (!filtered.length) { list.innerHTML = `<div class="sd-no-results">No results</div>`; return; }
+      list.innerHTML = filtered.map(f => `<div class="sd-option" onmousedown="selectFactory('${f.replace(/'/g, "\\'")}')"> ${f}</div>`).join('');
+    }
+    function openFactoryDropdown() {
+      populateFactoryDropdown();
+      document.getElementById('factoryDropdownList').classList.add('open');
+    }
+    function filterFactoryDropdown() {
+      populateFactoryDropdown();
+      document.getElementById('factoryDropdownList').classList.add('open');
+      document.getElementById('fFactory').value = '';
+    }
+    function selectFactory(val) {
+      document.getElementById('fFactorySearch').value = val;
+      document.getElementById('fFactory').value = val;
+      document.getElementById('factoryDropdownList').classList.remove('open');
+    }
+    function closeFactoryDropdownDelay() { setTimeout(() => document.getElementById('factoryDropdownList').classList.remove('open'), 200); }
+
+    // FILE HANDLING  (multipart upload to /api/upload)
+    let pendingFileData = null;  // { fileName, filePath } after successful upload
+    let pendingFileObj  = null;  // raw File object, uploaded lazily on tapal save
+    function handleFileSelect(event) {
+      const file = event.target.files[0]; if (!file) return;
+      if (file.type !== 'application/pdf' && !file.name.toLowerCase().endsWith('.pdf')) { alert(t('alert_pdf_only')); event.target.value = ''; return; }
+      if (file.size > 10 * 1024 * 1024) { alert(t('alert_pdf_size')); event.target.value = ''; return; }
+      pendingFileObj  = file;
+      pendingFileData = null;   // will be set after upload
+      document.getElementById('filePreview').style.display = 'flex';
+      document.getElementById('filePreviewName').textContent = file.name;
+      document.getElementById('fileDropArea').style.display = 'none';
+    }
+    async function uploadPendingFile() {
+      if (!pendingFileObj) return true;  // nothing to upload
+      const fd = new FormData();
+      fd.append('attachment', pendingFileObj);
+      try {
+        const res = await fetch('/api/upload', { method: 'POST', credentials: 'same-origin', body: fd });
+        const data = await res.json();
+        if (data.success) {
+          pendingFileData = { fileName: data.fileName, filePath: data.filePath };
+          pendingFileObj  = null;
+          return true;
+        } else {
+          alert('File upload failed: ' + (data.error || 'Unknown error'));
+          return false;
+        }
+      } catch (err) {
+        alert('File upload error: ' + err.message);
+        return false;
+      }
+    }
+    function removeFile() {
+      pendingFileData = null; pendingFileObj = null;
+      document.getElementById('fAttachment').value = '';
+      document.getElementById('filePreview').style.display = 'none';
+      document.getElementById('fileDropArea').style.display = 'block';
+    }
+
+    // PDF VIEWER
+    function viewDocument(tapalId) {
+
+      const rec = tapals.find(x => x.id == tapalId);
+      if (!rec) return;
+
+      document.getElementById('pdfModalTitle').textContent =
+        rec.attachmentName || 'No Document';
+
+      document.getElementById('pdfModalSub').textContent =
+        `${rec.tapalNo} • ${formatDate(rec.date)}`;
+
+      const vc = document.getElementById('pdfViewerContent');
+
+      if (rec.attachmentPath) {
+
+        currentPdfData = rec.attachmentPath;
+
+        vc.innerHTML = `
+      <iframe
+        src="${rec.attachmentPath}"
+        style="width:100%;height:600px;border:none;"
+      ></iframe>
+    `;
+
+        document.getElementById('pdfDownloadBtn').style.display = 'flex';
+
+      } else {
+
+        currentPdfData = null;
+
+        vc.innerHTML = `
+      <div class="pdf-no-file">
+        <div class="pdf-no-icon">📄</div>
+        <div class="pdf-no-text">No document attached</div>
+      </div>
+    `;
+
+        document.getElementById('pdfDownloadBtn').style.display = 'none';
+      }
+
+      document.getElementById('pdfModalOverlay').classList.add('open');
+    }
+    function closePdfModal() { document.getElementById('pdfModalOverlay').classList.remove('open'); currentPdfData = null; }
+    function downloadPdf() { if (!currentPdfData) return; const a = document.createElement('a'); a.href = currentPdfData; a.download = 'document.pdf'; a.click(); }
+
+    // MODAL
+    let editingTapalId = null;  // null = new tapal, number = editing existing
+
+    function openModal() {
+      editingTapalId = null;
+      setTodayDate(); pendingFileData = null; pendingFileObj = null;
+      document.getElementById('filePreview').style.display = 'none';
+      document.getElementById('fileDropArea').style.display = 'block';
+      document.getElementById('fAttachment').value = '';
+      document.getElementById('fFactorySearch').value = '';
+      document.getElementById('fFactory').value = '';
+      // Reset modal title to "Add New Tapal"
+      document.querySelector('#modalOverlay .modal-title .hi').textContent = t('modal_title_hi');
+      document.querySelector('#modalOverlay .modal-title .en').textContent = t('modal_title_en');
+      document.getElementById('modalOverlay').classList.add('open');
+    }
+
+    function editTapal(id) {
+      const rec = tapals.find(x => x.id == id);
+      if (!rec) return;
+      editingTapalId = id;
+      pendingFileData = null; pendingFileObj = null;
+
+      // Fill form fields
+      document.getElementById('fTapalNo').value   = rec.tapalNo  || '';
+      document.getElementById('fDate').value       = rec.date     ? rec.date.slice(0, 10) : '';
+      document.getElementById('fType').value       = rec.type     || '';
+      document.getElementById('fLang').value       = rec.lang     || '';
+      document.getElementById('fFromTo').value     = rec.fromTo   || '';
+      document.getElementById('fFirmName').value   = rec.firmName || '';
+      document.getElementById('fSubject').value    = rec.subject  || '';
+      document.getElementById('fRemarks').value    = rec.remarks  || '';
+      document.getElementById('fReminder').value   = rec.reminder ? rec.reminder.slice(0, 10) : '';
+      document.getElementById('fStatus').value     = rec.status   || 'Pending';
+      document.getElementById('fTapalType').value  = rec.tapalType || '';
+      document.getElementById('fMarkedTo').value   = rec.markedTo || '';
+      document.getElementById('fCity').value       = rec.city     || '';
+
+      // Factory searchable dropdown
+      document.getElementById('fFactorySearch').value = rec.factory || '';
+      document.getElementById('fFactory').value        = rec.factory || '';
+
+      // Attachment: show existing file preview if any
+      if (rec.attachmentName) {
+        document.getElementById('filePreviewName').textContent = rec.attachmentName;
+        document.getElementById('filePreview').style.display = 'flex';
+        document.getElementById('fileDropArea').style.display = 'none';
+        // Keep existing attachment info so it is preserved unless replaced
+        pendingFileData = { fileName: rec.attachmentName, filePath: rec.attachmentPath };
+      } else {
+        document.getElementById('filePreview').style.display = 'none';
+        document.getElementById('fileDropArea').style.display = 'block';
+      }
+
+      // Update modal title to indicate editing
+      document.querySelector('#modalOverlay .modal-title .hi').textContent = '✏️ तपाल संपादित करें';
+      document.querySelector('#modalOverlay .modal-title .en').textContent = 'Edit Tapal';
+
+      document.getElementById('modalOverlay').classList.add('open');
+    }
+
+    function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); editingTapalId = null; clearForm(); }
+    function clearForm() {
+      ['fTapalNo', 'fDate', 'fFromTo', 'fFirmName', 'fSubject', 'fRemarks', 'fReminder'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+      ['fType', 'fLang', 'fTapalType', 'fMarkedTo', 'fCity', 'fStatus'].forEach(id => { const el = document.getElementById(id); if (el) el.selectedIndex = 0; });
+      document.getElementById('fFactorySearch').value = ''; document.getElementById('fFactory').value = '';
+      removeFile();
+    }
+
+    // CRUD
+    async function saveTapal() {
+      const tapalNo = document.getElementById('fTapalNo').value.trim();
+      const date    = document.getElementById('fDate').value;
+      const type    = document.getElementById('fType').value;
+
+      if (!tapalNo || !date || !type) {
+        alert('Please fill required fields (Tapal No, Date, Type)');
+        return;
+      }
+
+      // Upload PDF file first if one was selected
+      if (pendingFileObj) {
+        const ok = await uploadPendingFile();
+        if (!ok) return;   // abort if upload failed
+      }
+
+      const tapalData = {
+        tapalNo, date, type,
+        lang:         document.getElementById('fLang').value,
+        fromTo:       document.getElementById('fFromTo').value.trim(),
+        tapalType:    document.getElementById('fTapalType').value,
+        markedTo:     document.getElementById('fMarkedTo').value,
+        firmName:     document.getElementById('fFirmName').value.trim(),
+        factory:      document.getElementById('fFactory').value,
+        city:         document.getElementById('fCity').value,
+        subject:      document.getElementById('fSubject').value.trim(),
+        status:       document.getElementById('fStatus').value || 'Pending',
+        reminder:     document.getElementById('fReminder').value,
+        remarks:      document.getElementById('fRemarks').value.trim(),
+        attachmentName: pendingFileData ? pendingFileData.fileName : null,
+        attachmentPath: pendingFileData ? pendingFileData.filePath : null
+      };
+
+      try {
+        const url    = editingTapalId ? '/api/tapals/' + editingTapalId : '/api/tapals';
+        const method = editingTapalId ? 'PUT' : 'POST';
+        const res = await fetch(url, {
+          method,
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'same-origin',
+          body: JSON.stringify(tapalData)
+        });
+        const result = await res.json();
+        if (result.success) {
+          loadTapals();
+          closeModal();
+        } else {
+          alert(result.error || 'Error saving tapal');
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Error saving tapal');
+      }
+    }
+    async function loadTapals() {
+      try {
+        const res = await fetch('/api/tapals');
+        tapals = await res.json();
+
+        renderTable();
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function verifyTapal(id) {
+      try {
+
+        const res = await fetch('/api/tapals/' + id + '/verify', {
+          method: 'PUT'
+        });
+
+        const result = await res.json();
+
+        if (result.success) {
+          await loadTapals();
+        } else {
+          alert(result.error);
+        }
+
+      } catch (err) {
+        console.error(err);
+        alert('Verify failed');
+      }
+    }
+
+    async function toggleStatus(id) {
+      try {
+
+        const res = await fetch('/api/tapals/' + id + '/status', {
+          method: 'PUT'
+        });
+
+        const result = await res.json();
+
+        if (result.success) {
+          await loadTapals();
+        } else {
+          alert(result.error);
+        }
+
+      } catch (err) {
+        console.error(err);
+        alert('Status update failed');
+      }
+    }
+    async function deleteTapal(id) {
+
+      if (!confirm('Are you sure you want to delete this tapal?')) {
+        return;
+      }
+
+      try {
+
+        const res = await fetch('/api/tapals/' + id, {
+          method: 'DELETE'
+        });
+
+        const result = await res.json();
+
+        if (result.success) {
+          await loadTapals();
+        } else {
+          alert(result.error);
+        }
+
+      } catch (err) {
+        console.error(err);
+        alert('Delete failed');
+      }
+    }
+    function exportCSV() {
+      const data = filtered();
+      if (!data.length) { alert(t('alert_no_export')); return; }
+
+      // Build table rows for in-page display
+      const headers = ['S.No.', 'Tapal No.', 'Date', 'Type', 'Factory', 'Marked To', 'From/To', 'Subject', 'Language', 'Status', 'Reminder', 'Remarks', 'Attached File'];
+
+      const theadHtml = headers.map(h =>
+        `<th style="padding:10px 14px;background:linear-gradient(90deg,#eaf5da,#f2fae9);color:var(--primary-dark);font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;white-space:nowrap;border-bottom:2px solid var(--border);position:sticky;top:0;">${h}</th>`
+      ).join('');
+
+      const tbodyHtml = data.map((r, i) => {
+        const bg = i % 2 === 0 ? '#fff' : '#f8fdf3';
+        const cells = [
+          i + 1,
+          r.tapalNo || '',
+          r.date || '',
+          (typeLabels[currentLang]||typeLabels.en)[r.type] || r.type || '',
+          r.factory || '',
+          r.markedTo || '',
+          r.fromTo || '',
+          r.subject || '',
+          (langLabels[currentLang]||langLabels.en)[r.lang] || r.lang || '',
+          (statusLabels[currentLang]||statusLabels.en)[statusNormalize[r.status]||r.status] || r.status || '',
+          r.reminder || '',
+          r.remarks || '',
+          r.attachmentName || ''
+        ];
+        return `<tr style="background:${bg};">${cells.map(c =>
+          `<td style="padding:8px 14px;font-size:13px;border-bottom:1px solid #eaf3de;white-space:nowrap;max-width:220px;overflow:hidden;text-overflow:ellipsis;" title="${String(c).replace(/"/g,'&quot;')}">${c}</td>`
+        ).join('')}</tr>`;
+      }).join('');
+
+      // Store CSV string on the modal for download button
+      const csvRows = data.map((r, i) => [
+        i + 1,
+        `"${(r.tapalNo    || '').replace(/"/g,'""')}"`,
+        r.date || '',
+        (typeLabels[currentLang]||typeLabels.en)[r.type] || r.type || '',
+        `"${(r.factory    || '').replace(/"/g,'""')}"`,
+        `"${(r.markedTo   || '').replace(/"/g,'""')}"`,
+        `"${(r.fromTo     || '').replace(/"/g,'""')}"`,
+        `"${(r.subject    || '').replace(/"/g,'""')}"`,
+        (langLabels[currentLang]||langLabels.en)[r.lang] || r.lang || '',
+        (statusLabels[currentLang]||statusLabels.en)[statusNormalize[r.status]||r.status] || r.status || '',
+        r.reminder || '',
+        `"${(r.remarks    || '').replace(/"/g,'""')}"`,
+        `"${(r.attachmentName || '').replace(/"/g,'""')}"`
+      ].join(','));
+      // ── CSV header block (printed above column names) ──────────────────────
+      const exportDate   = new Date().toLocaleDateString('en-IN', { day: '2-digit', month: 'long', year: 'numeric' });
+      const exportTime   = new Date().toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' });
+      const activeFilter = (() => {
+        const ft = document.getElementById('filterType')?.value;
+        const fs = document.getElementById('filterStatus')?.value;
+        const fq = document.getElementById('searchInput')?.value?.trim();
+        const parts = [];
+        if (ft)  parts.push('Type: ' + ft);
+        if (fs)  parts.push('Status: ' + fs);
+        if (fq)  parts.push('Search: "' + fq + '"');
+        return parts.length ? parts.join(' | ') : 'All Records';
+      })();
+      const metaRows = [
+        '"AVNL Institute of Learning"',
+        '"HVF STATE, AVADI CHENNAI - 600054"',
+        `"Exported on: ${exportDate}  at  ${exportTime}"`,
+        `"Total Records: ${data.length}    |    Filter: ${activeFilter}"`,
+        ''   // blank separator row before column headers
+      ];
+      const csvString = '\uFEFF' + [...metaRows, headers.join(','), ...csvRows].join('\n');
+
+      const modal = document.getElementById('csvViewerOverlay');
+      modal._csv = csvString;
+      // Store structured data for xlsx export
+      const xlsxDataRows = [headers, ...data.map((r, i) => [
+        String(i + 1),
+        r.tapalNo    || '',
+        r.date       || '',
+        (typeLabels[currentLang]||typeLabels.en)[r.type] || r.type || '',
+        r.factory    || '',
+        r.markedTo   || '',
+        r.fromTo     || '',
+        r.subject    || '',
+        (langLabels[currentLang]||langLabels.en)[r.lang] || r.lang || '',
+        (statusLabels[currentLang]||statusLabels.en)[statusNormalize[r.status]||r.status] || r.status || '',
+        r.reminder   || '',
+        r.remarks    || '',
+        r.attachmentName || ''
+      ])];
+      modal._xlsxData = {
+        rows: xlsxDataRows,
+        colCount: headers.length,
+        exportDate,
+        exportTime,
+        activeFilter,
+        recordCount: data.length
+      };
+      document.getElementById('csvRecordCount').textContent = `${data.length} record${data.length !== 1 ? 's' : ''}`;
+      document.getElementById('csvExportDate').textContent = new Date().toLocaleDateString();
+      document.getElementById('csvThead').innerHTML = `<tr>${theadHtml}</tr>`;
+      document.getElementById('csvTbody').innerHTML = tbodyHtml;
+      modal.classList.add('open');
+    }
+
+    function closeCSVViewer() {
+      document.getElementById('csvViewerOverlay').classList.remove('open');
+    }
+
+    function downloadCSV() {
+      const modal = document.getElementById('csvViewerOverlay');
+      if (!modal._xlsxData) return;
+
+      const { rows, colCount, exportDate, exportTime, activeFilter, recordCount } = modal._xlsxData;
+      const wb = XLSX.utils.book_new();
+      const ws = {};
+      const lastCol = colCount - 1;
+
+      function cell(v, bold, sz, hAlign, borderBottom, fillRgb) {
+        const s = {
+          font: { name: 'Calibri', sz: sz || 11, bold: !!bold, color: { rgb: '000000' } },
+          alignment: { horizontal: hAlign || 'left', vertical: 'center', wrapText: false }
+        };
+        if (borderBottom) s.border = { bottom: { style: 'medium', color: { rgb: '2E7D22' } } };
+        if (fillRgb) s.fill = { patternType: 'solid', fgColor: { rgb: fillRgb } };
+        return { v, t: 's', s };
+      }
+
+      // Row 1 – Institution name: large, bold, centered
+      ws[XLSX.utils.encode_cell({ r: 0, c: 0 })] = cell('AVNL Institute of Learning', true, 24, 'center');
+      for (let c = 1; c <= lastCol; c++) ws[XLSX.utils.encode_cell({ r: 0, c })] = { v: '', t: 's', s: { font: { sz: 24 } } };
+
+      // Row 2 – Address: medium, centered
+      ws[XLSX.utils.encode_cell({ r: 1, c: 0 })] = cell('HVF STATE, AVADI CHENNAI - 600054', false, 13, 'center');
+      for (let c = 1; c <= lastCol; c++) ws[XLSX.utils.encode_cell({ r: 1, c })] = { v: '', t: 's', s: { font: { sz: 13 } } };
+
+      // Row 3 – Export date: small, left-aligned, no border
+      ws[XLSX.utils.encode_cell({ r: 2, c: 0 })] = cell(`Exported on: ${exportDate}  at  ${exportTime}`, false, 10, 'left');
+
+      // Row 4 – Record count: small, left-aligned, green bottom border across all cols
+      ws[XLSX.utils.encode_cell({ r: 3, c: 0 })] = cell(`Total Records: ${recordCount}    |    Filter: ${activeFilter}`, false, 10, 'left', true);
+      for (let c = 1; c <= lastCol; c++)
+        ws[XLSX.utils.encode_cell({ r: 3, c })] = { v: '', t: 's', s: { border: { bottom: { style: 'medium', color: { rgb: '2E7D22' } } } } };
+
+      // Row 5 – blank
+      for (let c = 0; c <= lastCol; c++) ws[XLSX.utils.encode_cell({ r: 4, c })] = { v: '', t: 's' };
+
+      // Row 6 – Column headers: bold, light grey fill, thin bottom border
+      rows[0].forEach((h, ci) => {
+        ws[XLSX.utils.encode_cell({ r: 5, c: ci })] = {
+          v: h, t: 's',
+          s: {
+            font: { name: 'Calibri', sz: 10, bold: true, color: { rgb: '000000' } },
+            fill: { patternType: 'solid', fgColor: { rgb: 'EEEEEE' } },
+            alignment: { horizontal: 'left', vertical: 'center' },
+            border: { bottom: { style: 'thin', color: { rgb: '999999' } } }
+          }
+        };
+      });
+
+      // Data rows – alternating white / light green
+      rows.slice(1).forEach((row, ri) => {
+        const bg = ri % 2 === 0 ? 'FFFFFF' : 'EBF5E1';
+        row.forEach((val, ci) => {
+          ws[XLSX.utils.encode_cell({ r: ri + 6, c: ci })] = {
+            v: val, t: 's',
+            s: {
+              font: { name: 'Calibri', sz: 10, color: { rgb: '000000' } },
+              fill: { patternType: 'solid', fgColor: { rgb: bg } },
+              alignment: { horizontal: 'left', vertical: 'center', wrapText: false }
+            }
+          };
+        });
+      });
+
+      // Merges – rows 1 & 2 span full width for centered heading
+      ws['!merges'] = [
+        { s: { r: 0, c: 0 }, e: { r: 0, c: lastCol } },
+        { s: { r: 1, c: 0 }, e: { r: 1, c: lastCol } }
+      ];
+
+      // Row heights
+      ws['!rows'] = [
+        { hpt: 52 },  // row 1 – institution (24pt)
+        { hpt: 30 },  // row 2 – address (13pt)
+        { hpt: 18 },  // row 3 – export date
+        { hpt: 18 },  // row 4 – total records + green underline
+        { hpt: 6  },  // row 5 – blank gap
+        { hpt: 22 }   // row 6 – column headers
+      ];
+
+      // Column widths
+      ws['!cols'] = [
+        { wch: 6  },  // S.No.
+        { wch: 14 },  // Tapal No.
+        { wch: 24 },  // Date
+        { wch: 10 },  // Type
+        { wch: 20 },  // Factory
+        { wch: 24 },  // Marked To
+        { wch: 22 },  // From/To
+        { wch: 30 },  // Subject
+        { wch: 12 },  // Language
+        { wch: 12 },  // Status
+        { wch: 14 },  // Reminder
+        { wch: 24 },  // Remarks
+        { wch: 34 }   // Attached File
+      ];
+
+      ws['!ref'] = XLSX.utils.encode_range({ s: { r: 0, c: 0 }, e: { r: rows.length + 5, c: lastCol } });
+
+      XLSX.utils.book_append_sheet(wb, ws, 'Tapals');
+      XLSX.writeFile(wb, `RI_Tapal_${new Date().toISOString().slice(0, 10)}.xlsx`);
+    }
+
+    // POPULATE DROPDOWNS  (handles both plain strings and {id,name} objects)
+    function mName(item) { return typeof item === 'object' ? item.name : item; }
+    function populateDropdowns() {
+      const fMarkedTo = document.getElementById('fMarkedTo');
+      if (fMarkedTo) { const cur = fMarkedTo.value; fMarkedTo.innerHTML = `<option value="">${t('select_choose')}</option>` + masterOfficers.map(o => { const n=mName(o); return `<option value="${n}" ${n===cur?'selected':''}>${n}</option>`; }).join(''); }
+      const fCity = document.getElementById('fCity');
+      if (fCity) { const cur = fCity.value; fCity.innerHTML = `<option value="">${t('select_choose')}</option>` + masterCities.map(c => { const n=mName(c); return `<option value="${n}" ${n===cur?'selected':''}>${n}</option>`; }).join(''); }
+      const fTapalType = document.getElementById('fTapalType');
+      if (fTapalType) { const cur = fTapalType.value; fTapalType.innerHTML = `<option value="">${t('select_choose')}</option>` + masterTapalTypes.map(tp => { const n=mName(tp); return `<option value="${n}" ${n===cur?'selected':''}>${n}</option>`; }).join(''); }
+      populateMonthYearSelects();
+    }
+
+    function populateMonthYearSelects() {
+      const ms = document.getElementById('monthlyMonth'); const ys = document.getElementById('monthlyYear'); if (!ms || !ys) return;
+      const months = t('months'); const cm = ms.value;
+      ms.innerHTML = `<option value="">${t('all_months')}</option>` + months.map((m, i) => `<option value="${String(i + 1).padStart(2, '0')}" ${cm === String(i + 1).padStart(2, '0') ? 'selected' : ''}>${m}</option>`).join('');
+      const cy = parseInt(ys.value) || new Date().getFullYear(); const ty = new Date().getFullYear();
+      ys.innerHTML = `<option value="">${t('all_years')}</option>`;
+      for (let y = ty + 2; y >= ty - 5; y--)ys.innerHTML += `<option value="${y}" ${cy === y ? 'selected' : ''}>${y}</option>`;
+    }
+
+    // MASTER DATA MANAGEMENT
+    // renderMasterList is defined inside MASTER DATA MANAGEMENT block above
+
+    // Map frontend dataKey → API key
+    const MASTER_API_KEY = { officers: 'officers', cities: 'cities', tapalTypes: 'tapal-types', factories: 'factories' };
+
+    // Master item ID mapping (index → actual DB id, populated by renderMasterList)
+    const masterIdMap = {};
+
+    function renderMasterList(listId, dataKey) {
+      const el = document.getElementById(listId); if (!el) return;
+      const data = dataKey === 'officers' ? masterOfficers : dataKey === 'cities' ? masterCities : dataKey === 'tapalTypes' ? masterTapalTypes : masterFactories;
+      if (!data.length) { el.innerHTML = `<div style="text-align:center;color:var(--text-3);padding:20px;font-size:13px;">No items yet.</div>`; return; }
+      el.innerHTML = data.map((item, i) => `
+    <div class="master-item">
+      <span class="master-item-name">${typeof item === 'object' ? item.name : item}</span>
+      <div class="master-item-actions">
+        <button class="btn btn-sm btn-ghost" onclick="editMasterItem('${dataKey}','${listId}',${i})">✏</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteMasterItem('${dataKey}','${listId}',${i})">🗑</button>
+      </div>
+    </div>`).join('');
+    }
+
+    async function addMasterItem(dataKey, inputId, listId) {
+      const input = document.getElementById(inputId); if (!input) return;
+      const val = input.value.trim(); if (!val) return;
+      const apiKey = MASTER_API_KEY[dataKey];
+      try {
+        const res = await fetch('/api/masters/' + apiKey, {
+          method: 'POST', credentials: 'same-origin',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: val })
+        });
+        const data = await res.json();
+        if (data.success) {
+          input.value = '';
+          await reloadMasterKey(dataKey, listId);
+          populateDropdowns();
+          if (dataKey === 'factories') populateFactoryDropdown();
+        } else if (res.status === 401) {
+          requireAuth(() => addMasterItem(dataKey, inputId, listId));
+        } else {
+          alert(data.error || 'Error adding item');
+        }
+      } catch(e) { alert('Network error'); }
+    }
+
+    async function editMasterItem(dataKey, listId, index) {
+      const arr    = dataKey === 'officers' ? masterOfficers : dataKey === 'cities' ? masterCities : dataKey === 'tapalTypes' ? masterTapalTypes : masterFactories;
+      const item   = arr[index];
+      const oldName = typeof item === 'object' ? item.name : item;
+      const itemId  = typeof item === 'object' ? item.id  : null;
+      const newVal = prompt('Edit:', oldName);
+      if (!newVal || !newVal.trim() || newVal.trim() === oldName) return;
+      const apiKey = MASTER_API_KEY[dataKey];
+      const id = itemId || (masterIdMap[dataKey] && masterIdMap[dataKey][index]);
+      if (!id) { alert('Cannot edit: ID not found. Reload the page.'); return; }
+      try {
+        const res = await fetch('/api/masters/' + apiKey + '/' + id, {
+          method: 'PUT', credentials: 'same-origin',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: newVal.trim() })
+        });
+        const data = await res.json();
+        if (data.success) {
+          await reloadMasterKey(dataKey, listId);
+          populateDropdowns();
+        } else if (res.status === 401) {
+          requireAuth(() => editMasterItem(dataKey, listId, index));
+        } else {
+          alert(data.error || 'Error renaming item');
+        }
+      } catch(e) { alert('Network error'); }
+    }
+
+    async function deleteMasterItem(dataKey, listId, index) {
+      if (!confirm('Delete this item?')) return;
+      const arr    = dataKey === 'officers' ? masterOfficers : dataKey === 'cities' ? masterCities : dataKey === 'tapalTypes' ? masterTapalTypes : masterFactories;
+      const item   = arr[index];
+      const itemId  = typeof item === 'object' ? item.id  : null;
+      const apiKey = MASTER_API_KEY[dataKey];
+      const id = itemId || (masterIdMap[dataKey] && masterIdMap[dataKey][index]);
+      if (!id) { alert('Cannot delete: ID not found. Reload the page.'); return; }
+      try {
+        const res = await fetch('/api/masters/' + apiKey + '/' + id, {
+          method: 'DELETE', credentials: 'same-origin'
+        });
+        const data = await res.json();
+        if (data.success) {
+          await reloadMasterKey(dataKey, listId);
+          populateDropdowns();
+        } else if (res.status === 401) {
+          requireAuth(() => deleteMasterItem(dataKey, listId, index));
+        } else if (res.status === 403) {
+          alert('Only admins can delete master data.');
+        } else {
+          alert(data.error || 'Error deleting item');
+        }
+      } catch(e) { alert('Network error'); }
+    }
+
+    async function reloadMasterKey(dataKey, listId) {
+      const apiKey = MASTER_API_KEY[dataKey];
+      try {
+        const res  = await fetch('/api/masters/' + apiKey, { credentials: 'same-origin' });
+        const data = await res.json();
+        if (data.success) {
+          const names = data.data;  // keep as objects with .id and .name
+          if (dataKey === 'officers')    masterOfficers   = names;
+          if (dataKey === 'cities')      masterCities     = names;
+          if (dataKey === 'tapalTypes')  masterTapalTypes = names;
+          if (dataKey === 'factories')   masterFactories  = names;
+          // Store id map for edit/delete
+          masterIdMap[dataKey] = names.map(x => x.id);
+        }
+      } catch(e) { /* ignore */ }
+      renderMasterList(listId, dataKey);
+    }
+
+    // SETTINGS
+    async function showSettingsTab(tab) {
+      ['settingsHome', 'officeProfileTab', 'personalizationTab', 'reportsTab', 'monthlyReportPage', 'pendingReportPage', 'masterdataTab'].forEach(id => { const el = document.getElementById(id); if (el) el.style.display = 'none'; });
+      if (tab === 'officeProfile') document.getElementById('officeProfileTab').style.display = 'block';
+      else if (tab === 'personalization') document.getElementById('personalizationTab').style.display = 'block';
+      else if (tab === 'reports') document.getElementById('reportsTab').style.display = 'block';
+      else if (tab === 'masterdata') {
+        document.getElementById('masterdataTab').style.display = 'block';
+        // Fresh fetch from API
+        await loadMasterDataFromAPI();
+        renderMasterList('officerList', 'officers'); renderMasterList('cityList', 'cities');
+        renderMasterList('tapalTypeList', 'tapalTypes'); renderMasterList('factoryList', 'factories');
+        populateDropdowns();
+      }
+    }
+    function backToSettings() {
+      ['officeProfileTab', 'personalizationTab', 'reportsTab', 'monthlyReportPage', 'pendingReportPage', 'masterdataTab'].forEach(id => { const el = document.getElementById(id); if (el) el.style.display = 'none'; });
+      document.getElementById('settingsHome').style.display = 'block';
+    }
+    function backToReports() {
+      document.getElementById('monthlyReportPage').style.display = 'none';
+      document.getElementById('pendingReportPage').style.display = 'none';
+      document.getElementById('reportsTab').style.display = 'block';
+    }
+
+    // MONTHLY REPORT
+    function showMonthlyReport() {
+      document.getElementById('reportsTab').style.display = 'none';
+      document.getElementById('monthlyReportPage').style.display = 'block';
+      populateMonthYearSelects(); renderMonthlyChart();
+    }
+    function renderMonthlyChart() {
+      const sm = document.getElementById('monthlyMonth').value;
+      const sy = document.getElementById('monthlyYear').value;
+      let data = tapals;
+      if (sy) data = data.filter(r => r.date && r.date.startsWith(sy));
+      if (sm) data = data.filter(r => r.date && r.date.slice(5, 7) === sm);
+      const total = data.length,
+        inward = data.filter(r => r.type === 'आवक').length,
+        outward = data.filter(r => r.type === 'जावक').length;
+
+      const pending = data.filter(r => r.status === 'Pending').length,
+        completed = data.filter(r => r.status === 'Completed').length;
+      document.getElementById('monthlyStatCards').innerHTML = `
+    <div class="report-card rc-total"><div class="report-card-icon">📋</div><div class="report-card-info"><div class="rc-num">${total}</div><div class="rc-label">${t('mo_total')}</div></div></div>
+    <div class="report-card rc-inward"><div class="report-card-icon">📥</div><div class="report-card-info"><div class="rc-num">${inward}</div><div class="rc-label">${t('mo_inward')}</div></div></div>
+    <div class="report-card rc-outward"><div class="report-card-icon">📤</div><div class="report-card-info"><div class="rc-num">${outward}</div><div class="rc-label">${t('mo_outward')}</div></div></div>
+    <div class="report-card rc-overdue"><div class="report-card-icon">⏳</div><div class="report-card-info"><div class="rc-num">${pending}</div><div class="rc-label">${t('mo_pending')}</div></div></div>`;
+      let labels = [], inwardData = [], outwardData = [], pendingData = [], completedData = [];
+      if (!sy && !sm) {
+        const counts = {};
+        tapals.forEach(r => {
+          if (!r.date) return; const k = r.date.slice(0, 7); if (!counts[k]) counts[k] = { in: 0, out: 0, pen: 0, comp: 0 };
+          if (r.type === 'आवक') counts[k].in++; else counts[k].out++;
+          if (r.status === 'Pending') counts[k].pen++;
+          if (r.status === 'Completed') counts[k].comp++;
+        });
+        Object.keys(counts).sort().forEach(k => {
+          const [y, m] = k.split('-'); labels.push(t('months')[parseInt(m) - 1] + ' ' + y.slice(2));
+          inwardData.push(counts[k].in); outwardData.push(counts[k].out); pendingData.push(counts[k].pen); completedData.push(counts[k].comp);
+        });
+      } else if (sy && !sm) {
+        for (let m = 1; m <= 12; m++) {
+          const mk = sy + '-' + String(m).padStart(2, '0');
+          const mt = tapals.filter(r => r.date && r.date.startsWith(mk));
+          labels.push(t('months')[m - 1]);
+          inwardData.push(mt.filter(r => r.type === 'आवक').length); outwardData.push(mt.filter(r => r.type === 'जावक').length);
+          pendingData.push(mt.filter(r => r.status === 'Pending').length);
+          completedData.push(mt.filter(r => r.status === 'Completed').length);
+        }
+      } else { labels = [t('mo_inward'), t('mo_outward'), t('mo_pending'), t('mo_completed')]; inwardData = [inward]; outwardData = [outward]; pendingData = [pending]; completedData = [completed]; }
+      destroyChart('monthlyChart');
+      const ctx = document.getElementById('monthlyChart'); if (!ctx) return;
+      if (labels.length <= 4 && sm) {
+        chartInstances['monthlyChart'] = new Chart(ctx, { type: 'doughnut', data: { labels: [t('mo_inward'), t('mo_outward'), t('mo_pending'), t('mo_completed')], datasets: [{ data: [inward, outward, pending, completed], backgroundColor: ['rgba(26,100,168,0.75)', 'rgba(196,126,18,0.75)', 'rgba(192,57,43,0.75)', 'rgba(22,101,52,0.75)'], borderWidth: 2 }] }, options: { responsive: true, plugins: { legend: { position: 'right' } } } });
+      } else {
+        chartInstances['monthlyChart'] = new Chart(ctx, {
+          type: 'bar', data: {
+            labels: labels.length ? labels : ['—'], datasets: [
+              { label: t('mo_inward'), data: inwardData, backgroundColor: 'rgba(26,100,168,0.7)', borderColor: '#1a64a8', borderWidth: 1.5, borderRadius: 5 },
+              { label: t('mo_outward'), data: outwardData, backgroundColor: 'rgba(196,126,18,0.7)', borderColor: '#c47e12', borderWidth: 1.5, borderRadius: 5 },
+              { label: t('mo_pending'), data: pendingData, backgroundColor: 'rgba(192,57,43,0.7)', borderColor: '#c0392b', borderWidth: 1.5, borderRadius: 5 },
+              { label: t('mo_completed'), data: completedData, backgroundColor: 'rgba(22,101,52,0.7)', borderColor: '#166534', borderWidth: 1.5, borderRadius: 5 }
+            ]
+          }, options: { responsive: true, plugins: { legend: { position: 'top' } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+        });
+      }
+    }
+
+    // PENDING REPORT
+    function showPendingReport() {
+      document.getElementById('reportsTab').style.display = 'none';
+      document.getElementById('pendingReportPage').style.display = 'block';
+      const totalPending = tapals.filter(r =>
+        r.status === 'Pending' || r.status === 'Overdue'
+      ).length;
+
+      const inwardPending = tapals.filter(r =>
+        (r.status === 'Pending' || r.status === 'Overdue') &&
+        r.type === 'आवक'
+      ).length;
+
+      const outwardPending = tapals.filter(r =>
+        (r.status === 'Pending' || r.status === 'Overdue') &&
+        r.type === 'जावक'
+      ).length;
+      const overdue = tapals.filter(r =>
+        r.status === 'Pending' &&
+        r.reminder &&
+        new Date(r.reminder) < new Date()
+      ).length;
+      document.getElementById('pendingReportCards').innerHTML = `
+    <div class="report-card rc-total"><div class="report-card-icon" style="font-size:28px;">📬</div><div class="report-card-info"><div class="rc-num">${totalPending}</div><div class="rc-label">${t('rc_total_pending')}</div><div class="rc-sub">${t('all_pending_letters')}</div></div></div>
+    <div class="report-card rc-inward"><div class="report-card-icon" style="font-size:28px;">📥</div><div class="report-card-info"><div class="rc-num">${inwardPending}</div><div class="rc-label">${t('rc_inward_pending')}</div><div class="rc-sub">${t('pending_inward_letters')}</div></div></div>
+    <div class="report-card rc-outward"><div class="report-card-icon" style="font-size:28px;">📤</div><div class="report-card-info"><div class="rc-num">${outwardPending}</div><div class="rc-label">${t('rc_outward_pending')}</div><div class="rc-sub">${t('pending_outward_letters')}</div></div></div>
+    <div class="report-card rc-overdue"><div class="report-card-icon" style="font-size:28px;">⏰</div><div class="report-card-info"><div class="rc-num">${overdue}</div><div class="rc-label">${t('rc_overdue')}</div><div class="rc-sub">${t('past_reminder_date') || 'Past reminder date'}</div></div></div>`;
+      destroyChart('pendingChart');
+      const ctx = document.getElementById('pendingChart');
+      if (ctx) chartInstances['pendingChart'] = new Chart(ctx, { type: 'doughnut', data: { labels: [t('rc_inward_pending'), t('rc_outward_pending'), t('rc_overdue')], datasets: [{ data: [inwardPending, outwardPending, overdue], backgroundColor: ['rgba(26,100,168,0.75)', 'rgba(196,126,18,0.75)', 'rgba(192,57,43,0.75)'], borderColor: ['#1a64a8', '#c47e12', '#c0392b'], borderWidth: 2 }] }, options: { responsive: true, plugins: { legend: { position: 'right' }, tooltip: { callbacks: { label: function (ctx) { const tot = ctx.dataset.data.reduce((a, b) => a + b, 0); const pct = tot ? Math.round(ctx.parsed / tot * 100) : 0; return `${ctx.label}: ${ctx.parsed} (${pct}%)`; } } } } } });
+      const pendingTapals = tapals.filter(r => r.status === 'लंबित' || r.status === 'अतिदेय');
+      const tbody = document.getElementById('pendingTableBody');
+      if (!pendingTapals.length) { tbody.innerHTML = `<tr><td colspan="11" style="text-align:center;padding:30px;color:var(--text-3);">No pending tapals</td></tr>`; return; }
+      tbody.innerHTML = pendingTapals.map((rec, i) => {
+        const typeLabel = (typeLabels[currentLang] || typeLabels.en)[rec.type] || rec.type;
+        const days = rec.reminder ? daysFromToday(rec.reminder) : null;
+        let daysHtml = '—';
+        if (days !== null) {
+          const dl = t('days_left_label');
+          let cls = 'warn-badge', txt = typeof dl === 'function' ? dl(days) : `${days}d`;
+          if (days === 0) { cls = 'today-badge'; txt = t('today_label'); }
+          else if (days < 0) cls = 'over-badge';
+          daysHtml = `<span class="days-left-badge ${cls}">${txt}</span>`;
+        }
+        return `<tr>
+      <td>${i + 1}</td><td>${formatDate(rec.date)}</td>
+      <td><span class="badge ${rec.type === 'आवक' ? 'badge-inward' : 'badge-outward'}">${typeLabel}</span></td>
+      <td class="cell-tapal-no">${rec.tapalNo}</td>
+      <td style="max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${rec.subject || '—'}</td>
+      <td>${rec.fromTo || '—'}</td><td>${rec.markedTo || '—'}</td>
+      <td>${formatDate(rec.reminder)}</td>
+      <td>${statusBadge(rec.status)}</td><td>${daysHtml}</td>
+      <td><button class="tl-view-btn" onclick="viewDocument('${rec.id}')">👁</button></td>
+    </tr>`;
+      }).join('');
+    }
+
+    // THEME
+    function saveTheme() {
+      const sc = document.getElementById('sidebarColor').value; const bc = document.getElementById('bgColor').value; const hc = document.getElementById('headerColor').value;
+      document.querySelector('.sidebar').style.background = sc; document.body.style.background = bc; document.querySelector('header').style.background = hc;
+      localStorage.setItem('sidebarColor', sc); localStorage.setItem('bgColor', bc); localStorage.setItem('headerColor', hc); alert('Theme Saved');
+    }
+    function resetTheme() { ['sidebarColor', 'bgColor', 'headerColor'].forEach(k => localStorage.removeItem(k)); location.reload(); }
+    function applyStoredTheme() {
+      const sc = localStorage.getItem('sidebarColor'); const bc = localStorage.getItem('bgColor'); const hc = localStorage.getItem('headerColor');
+      if (sc) document.querySelector('.sidebar').style.background = sc;
+      if (bc) document.body.style.background = bc;
+      if (hc) document.querySelector('header').style.background = hc;
+    }
+
+    // SIDEBAR
+    function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); document.getElementById('sidebarOverlay').classList.toggle('show'); }
+    function closeSidebar() { document.getElementById('sidebar').classList.remove('open'); document.getElementById('sidebarOverlay').classList.remove('show'); }
+
+    // INIT
+    document.getElementById('modalOverlay').addEventListener('click', function (e) { if (e.target === this) closeModal(); });
+    document.getElementById('pdfModalOverlay').addEventListener('click', function (e) { if (e.target === this) closePdfModal(); });
+    document.getElementById('authModalOverlay').addEventListener('click', function (e) { if (e.target === this) cancelAuth(); });
+    document.getElementById('csvViewerOverlay').addEventListener('click', function (e) { if (e.target === this) closeCSVViewer(); });
+
+    const dropArea = document.getElementById('fileDropArea');
+    if (dropArea) {
+      dropArea.addEventListener('dragover', e => { e.preventDefault(); dropArea.classList.add('drag-over'); });
+      dropArea.addEventListener('dragleave', () => dropArea.classList.remove('drag-over'));
+      dropArea.addEventListener('drop', e => {
+        e.preventDefault(); dropArea.classList.remove('drag-over');
+        const file = e.dataTransfer.files[0]; if (!file) return;
+        handleFileSelect({ target: { files: [file] } });
+      });
+    }
+
+    // ── MASTER DATA: load from API (fall back to defaults if offline) ──────────
+    async function loadMasterDataFromAPI() {
+      const keys = [
+        { apiKey: 'officers',    varSetter: v => masterOfficers    = v.map(x=>x.name), fallback: DEFAULT_OFFICERS    },
+        { apiKey: 'cities',      varSetter: v => masterCities      = v.map(x=>x.name), fallback: DEFAULT_CITIES      },
+        { apiKey: 'tapal-types', varSetter: v => masterTapalTypes  = v.map(x=>x.name), fallback: DEFAULT_TAPAL_TYPES },
+        { apiKey: 'factories',   varSetter: v => masterFactories   = v.map(x=>x.name), fallback: DEFAULT_FACTORIES   }
+      ];
+      await Promise.all(keys.map(async ({ apiKey, varSetter, fallback }) => {
+        try {
+          const res  = await fetch('/api/masters/' + apiKey, { credentials: 'same-origin' });
+          const data = await res.json();
+          if (data.success && data.data.length) varSetter(data.data);
+          else varSetter(fallback.map(n => ({ name: n })));
+        } catch(e) { /* keep defaults */ }
+      }));
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      applyStoredTheme();
+
+      // Restore session from server (cookie-based)
+      try {
+        const res  = await fetch('/api/auth/me', { credentials: 'same-origin' });
+        const data = await res.json();
+        if (data.success && data.loggedIn) {
+          authSession = data.user.username;
+          authUser    = data.user;
+        }
+      } catch(e) { /* server not up yet or offline */ }
+
+      applyTranslations();
+      updateHeaderDate();
+      updateStats();
+
+      // Load master data from DB, then populate dropdowns
+      await loadMasterDataFromAPI();
+      populateDropdowns();
+
+      await loadTapals();
+
+      updateAuthUI();
+
+      document.getElementById('dashboardSection').style.display = 'block';
+      document.getElementById('tapalSection').style.display = 'none';
+      document.getElementById('timelineSection').style.display = 'none';
+      document.getElementById('settingsSection').style.display = 'none';
+    });
+  </script>
+</body>
+
+</html>
